@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+encoding//src/AdaBoost/adaboost.py=utf-8
+encoding//src/Regression/regression.py=utf-8
+encoding//src/test/Create_Train_Val_Test_Set.py=utf-8
+encoding/<project>=UTF-8
