@@ -1,15 +1,62 @@
 
 from numpy import *
+import numpy as np
+import math
+import time
+from operator  import eq as cmp
+import pandas as pd
 
+
+filepath = "../data/ljt_train_dx.txt"
 def loadDataSet():
     dataMat = []
     labelMat = []
-    fr = open('testSet.txt')
+    fr = open(filepath)
     for line in fr.readlines():
-        lineAddr = line.strip().split()
-        dataMat.append([1.0, float(lineAddr[0]), float(lineAddr[1])])
-        labelMat.append(int(lineAddr[2]))
+        curLine = line.strip().split(',')
+        lineArr = []
+        for i in range(21):
+            lineArr.append(float(curLine[i]))
+        dataMat.append(lineArr)
+        labelMat.append(float(curLine[21]))
     return dataMat, labelMat
+
+def loadcsv(path):
+    ''''''
+    frame = pd.read_csv(path)
+    print(frame.head())
+    dfvalues01 = frame.values
+    dfvshap01 = np.shape(dfvalues01)
+    dfrows = dfvshap01[0]
+    dfcols = dfvshap01[1]
+    company_name = list(frame['company_name'].values)
+    dataMat = frame
+    labelMat = frame
+    return dataMat, labelMat
+
+def isNone(d):
+    return (d is None or cmp(d, 'None') or
+                    cmp(d, '?') or
+                    cmp(d, '') or
+                    cmp(d, 'NULL') or
+                    cmp(d, 'null'))
+# Type converter
+def initData(d01):
+    shape01 = np.shape(d01)
+    if shape01:
+        return 0
+    row01 = shape01[0]
+    col01 = shape01[1]
+    for i in range(0, row01):
+        for j in range(0, col01):
+            d = d01[i][j]
+            if (d is None or cmp(d, 'None') or
+                    cmp(d, '?') or
+                    cmp(d, '') or
+                    cmp(d, 'NULL') or
+                    cmp(d, 'null')):
+                d01[i][j] = 0.0
+    return d01
 
 def sigmoid(inX):
     return 1.0/(1+exp(-inX))
@@ -117,6 +164,34 @@ def colicTest():
     print('the error rate of this test is：%f' % errorRate)
     return errorRate
 
+
+def coliccsvTest():
+    frTrain = open('horseColicTraining.txt')
+    frTest = open('horseColicTest.txt')
+    trainSet = []
+    trainLabel = []
+    for line in frTrain.readlines():
+        curLine = line.strip().split('\t')
+        lineArr = []
+        for i in range(21):
+            lineArr.append(float(curLine[i]))
+        trainSet.append(lineArr)
+        trainLabel.append(float(curLine[21]))
+    trainWeight = stocGradAscent1(array(trainSet), trainLabel, 500)
+    errorCount = 0
+    numTestVec = 0.0
+    for line in frTest.readlines():
+        numTestVec += 1.0
+        curLine = line.strip().split('\t')
+        lineArr = []
+        for i in range(21):
+            lineArr.append(float(curLine[i]))
+        if int(classifyVector(array(lineArr), trainWeight))!=int(curLine[21]):
+            errorCount += 1
+    errorRate = float(errorCount)/numTestVec
+    print('the error rate of this test is：%f' % errorRate)
+    return errorRate
+
 def multiTest():
     numTests = 10
     errorSum = 0.0
@@ -124,12 +199,21 @@ def multiTest():
         errorSum += colicTest()
     print('after %d interations the average error rate is:%f'%(numTests, errorSum/float(numTests)))
 
+def multiTest2():
+    numTests = 10
+    errorSum = 0.0
+    for k in range(numTests):
+        errorSum += coliccsvTest()
+    print('after %d interations the average error rate is:%f'%(numTests, errorSum/float(numTests)))
+
 if __name__ == "__main__":
+    # data, label = loadDataSet()
     data, label = loadDataSet()
-    # weights = gradAscent(data, label)
-    # plotBestFit(weights.getA())
-    # weights = stocGradAscent0(array(data), label)
-    # plotBestFit(weights)
-    # weights = stocGradAscent1(array(data), label)
-    # plotBestFit(weights)
-    multiTest()
+    weights = gradAscent(data, label)
+    plotBestFit(weights.getA())
+    weights = stocGradAscent0(array(data), label)
+    plotBestFit(weights)
+    weights = stocGradAscent1(array(data), label)
+    plotBestFit(weights)
+    # multiTest()
+    # multiTest2()
