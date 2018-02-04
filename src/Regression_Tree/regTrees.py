@@ -220,14 +220,14 @@ reDraw(1.0, 10)
 root.mainloop()
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # myDat = loadDataSet("ex00.txt")
     # myMat = mat(myDat)
     # print(createTree(myMat))
     #
-    # myDat1 = loadDataSet("ex0.txt")
-    # myMat1 = mat(myDat1)
-    # print(createTree(myMat1))
+    myDat1 = loadDataSet("ex0.txt")
+    myMat1 = mat(myDat1)
+    print(createTree(myMat1))
     #
     # print(createTree(myMat, ops=(0,1)))
     #

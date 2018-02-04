@@ -3,7 +3,7 @@ from numpy import *
 import numpy as np
 import math
 import time
-from operator  import eq as cmp
+from operator import eq as cmp
 import pandas as pd
 
 
@@ -40,6 +40,12 @@ def isNone(d):
                     cmp(d, '') or
                     cmp(d, 'NULL') or
                     cmp(d, 'null'))
+
+def dealdata(X, y):
+    from sklearn.model_selection import train_test_split
+    # 随机抽取20%的测试集
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    return X_train, X_test, y_train, y_test
 # Type converter
 def initData(d01):
     shape01 = np.shape(d01)
