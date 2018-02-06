@@ -43,7 +43,7 @@ def is_empty_data_delet(curLine):
                 itrm=0.0
             else:
                 sum += float(itrm)
-    if sum > 0:
+    if sum > 1:
         return False
     else:
         return True
@@ -346,7 +346,7 @@ def Precision(TP, FP):
     :param FP: False POSITIVE 假正，被模型预测为正样本的负样本
     :return:
     '''
-    return TP / (TP + FP)*1.0
+    return TP / (TP*1.0 + FP*1.0)
 
 def TP_RATE(P, TP):
     '''
