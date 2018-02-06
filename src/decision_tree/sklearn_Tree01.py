@@ -113,14 +113,14 @@ def ROC_AUC(y, pred):
     # y = np.array([1, 1, 2, 2])
     # pred = np.array([0.1, 0.4, 0.35, 0.8])
     fpr, tpr, thresholds = roc_curve(y, pred[:,1], pos_label=1)
-    print("正确率：fpr==>"+str(fpr))
-    print("错误率：tpr==>"+str(tpr))
-    print(thresholds)
+    # print("正确率：fpr==>"+str(fpr))
+    # print("错误率：tpr==>"+str(tpr))
+    # print(thresholds)
     from sklearn.metrics import auc
     auc_area = auc(fpr, tpr)
     # 画图，只需要plt.plot(fpr,tpr),变量roc_auc只是记录auc的值，通过auc()函数能计算出来
     plt.plot(fpr, tpr, lw=1, label='ROC  (area = %0.2f)' % ( auc_area))
-    print(auc_area)
+    print("auc_area:"+str(auc_area))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
     plt.xlabel('False Positive Rate')
