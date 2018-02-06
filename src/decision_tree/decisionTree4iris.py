@@ -38,4 +38,4 @@ if __name__ == '__main__':
         ytestHat = model.predict(xtest)
         result = (ytestHat == ytest)
         accuracy = np.mean(result)
-        print(d, ' depth 准确率： %.4f%%' % (100 * accuracy))
+        print(d, u' depth 准确率： %.4f%%' % (100 * accuracy))
