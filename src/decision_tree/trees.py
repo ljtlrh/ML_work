@@ -43,10 +43,8 @@ def is_empty_data_delet(curLine):
                 itrm=0.0
             else:
                 sum += float(itrm)
-            if sum > 0:
-                return False
-            else:
-                return True
+    if sum > 0:
+        return False
     else:
         return True
 
