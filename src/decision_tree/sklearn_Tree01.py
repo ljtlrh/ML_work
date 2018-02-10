@@ -131,16 +131,6 @@ def ROC_AUC(y, pred):
     plt.show()
 
 def dx_train():
-    from sklearn import tree
-    data, target = loadDataSet()
-    X_train, X_test, y_train, y_test = dealdata(data, target)
-    # clf = tree.DecisionTreeClassifier()
-    # clf = clf.fit(X_train, y_train)
-    from sklearn.externals import joblib
-    # #保存模型
-    # joblib.dump(clf, "dx_train_model.m")
-    clf = joblib.load("dx_train_model.m")
-    import graphviz
     dxFeature = ["judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt", "near_3_year_judgedoc_cnt",
                  "near_2_year_judgedoc_cnt", "near_1_year_judgedoc_cnt", "litigant_defendant_contract_dispute_cnt",
                  "litigant_defendant_bust_cnt", "litigant_defendant_infringe_cnt",
@@ -150,9 +140,20 @@ def dx_train():
                  "near_1_year_shixin_cnt", "court_announce_is_no",
                  "court_announce_cnt", "court_announce_litigant_cnt", "court_notice_is_no", "court_notice_cnt",
                  "court_notice_litigant_cnt"]
+    from sklearn import tree
+    data, target = loadDataSet()
+    X_train, X_test, y_train, y_test = dealdata(data, target)
+    # clf = tree.DecisionTreeClassifier(max_depth=4)
+    # clf = clf.fit(X_train, y_train)
+    from sklearn.externals import joblib
+    # #保存模型
+    # joblib.dump(clf, "dx_train_model.m")
+    clf = joblib.load("dx_train_model.m")
+    import graphviz
+
     feature_names = np.array(dxFeature)
     tarrget = [0, 1]
-    target_names = np.array(tarrget)
+    # target_names = np.array(tarrget)
     TP = 0
     FP = 0
     TN = 0
@@ -160,7 +161,7 @@ def dx_train():
     P = 0
     N = 0
     ytestPre= clf.predict(X_test)
-    result = (y_test == ytestPre)
+    # result = (y_test == ytestPre)
     # accuracy = np.mean(result)
     from sklearn.metrics import accuracy_score
     accuracy = accuracy_score(y_test, ytestPre)
@@ -173,7 +174,7 @@ def dx_train():
     f1_score = metrics.f1_score(y_test, ytestPre, average='weighted')
     print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
     from sklearn.metrics import classification_report
-    target_names = ['class 0', 'class 1']
+    target_names = ['label is 0', 'label is 1']
     print(classification_report(y_test, ytestPre, target_names=target_names))
     from sklearn.metrics import cohen_kappa_score
     kappa_score = cohen_kappa_score(y_test, ytestPre)
