@@ -17,7 +17,7 @@ import xgboost as xgb
 import matplotlib.pyplot as plt
 
 filepath = u'../data/all_features.csv'
-dxFeature = ["company_name", "judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt",
+factors = ["company_name", "judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt",
 "near_3_year_judgedoc_cnt", "near_2_year_judgedoc_cnt",
 "near_1_year_judgedoc_cnt", "litigant_defendant_contract_dispute_cnt",
   "litigant_defendant_bust_cnt",  "litigant_defendant_infringe_cnt",
@@ -42,8 +42,8 @@ dxFeature = ["company_name", "judgedoc_is_no", "judgedoc_cnt", "litigant_defenda
 
 def dataread():
     # df = pd.read_csv(filepath, names=dxFeature, encoding='utf-8', header=None)
-    df = pd.read_csv(filepath, header=None, names=dxFeature)
-    print (df.head())
+    df = pd.read_csv(filepath, header=None, names=factors)
+    print(df.head())
     return df
 
 
@@ -93,8 +93,7 @@ def format_feature_label(origin_df, is_filter=True):
         origin_df = origin_df[origin_df['label'] != 0]
         # 因子xgboost的label输入范围只能是[0, 1]，需要对原始label进行替换
         origin_df['label'] = origin_df['label'].replace(-1, 0)
-
-    feature = np.array(origin_df[factors])
+    feature = np.array(origin_df['factors'])
     label = np.array(origin_df['label'])
 
     return feature, label
