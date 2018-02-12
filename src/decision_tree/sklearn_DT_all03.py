@@ -56,7 +56,7 @@ def is_empty_data_delet(curLine):
                     import math
                     itrm = math.log(itrm+1)
             sum += itrm
-    if sum >= 2:
+    if sum >= 2 and sum <=10:
         return False
     else:
         return True
