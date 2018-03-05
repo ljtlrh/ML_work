@@ -5,13 +5,15 @@ Created on  : 20180208
 决策树：
 '''
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
 import matplotlib.pyplot as plt
 
-filepath = "ljt_train_dx.txt"
+target_names = ['label is 1', 'label is 2']
+filepath = "data_dx2_zc1.txt"
+filepath2 = "data_dx2_zc02.txt"
+# dx2_file_path = 'data_dx_2.txt'
+# zc1_file_path = 'data_zc_1.txt'
+# random_zc_txt = 'data_zc_random_1.txt'
 dxFeature = ["judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt",
 "near_3_year_judgedoc_cnt", "near_2_year_judgedoc_cnt",
 "near_1_year_judgedoc_cnt", "litigant_defendant_contract_dispute_cnt",
@@ -35,66 +37,168 @@ dxFeature = ["judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt",
   "estate_auction_cnt", "real_estate_auction_cnt",  "trade_mark_cnt",
   "trademark_three_year_rate"]
 
+dx_feature2 = ["judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt",
+"near_3_year_judgedoc_cnt", "near_2_year_judgedoc_cnt",
+"near_1_year_judgedoc_cnt", "litigant_defendant_contract_dispute_cnt",
+  "litigant_defendant_bust_cnt",  "litigant_defendant_infringe_cnt",
+  "litigant_defendant_intellectual_property_owner_cnt",
+  "litigant_defendant_unjust_enrich_cnt",
+  "litigant_result_sum_money",  "net_judgedoc_defendant_cnt", "shixin_is_no",
+  "shixin_cnt", "near_3_year_shixin_cnt", "near_2_year_shixin_cnt",
+  "near_1_year_shixin_cnt", "court_announce_is_no", "court_announce_cnt",
+  "court_announce_litigant_cnt",  "court_notice_is_no", "court_notice_cnt",
+  "court_notice_litigant_cnt",
+   "industry_13","industry_26","industry_519","industry_18","industry_1810","industry_62",
+  "established_years",  "fr_change_cnt",  "address_change_cnt", "regcap_change_cnt",
+  "share_change_cnt", "network_fr_share_change_cnt",  "network_share_shixin_cnt",
+  "zhixing_cnt",  "sszc_cnt", "punish_cnt", "judge_doc_cnt",  "cancel_cnt",
+  "bidding_cnt",  "bidding_three_year_rate",  "is_black_list",  "is_escape",
+  "is_diff_raise_money",  "is_stop_busi", "is_lost_with_money", "is_just_lost",
+  "invent_publish_cnt", "invent_patent_cnt",  "utility_publish_cnt",
+  "invent_publish_three_year_rate", "invent_patent_three_year_rate",
+  "utility_publish_three_year_rate",  "warn_cnt", "fine_cnt", "revoking_cnt",
+  "warn_cnt_three_year_rate", "fine_cnt_three_year_rate", "revoking_cnt_three_year_rate",
+  "estate_auction_cnt", "real_estate_auction_cnt",  "trade_mark_cnt",
+  "trademark_three_year_rate"]
+
 def isNone(d):
     from operator import eq as cmp
-    return (d is None or cmp(d, 'None') or
-                    cmp(d, '?') or
-                    cmp(d, '') or
-                    cmp(d, 'NULL') or
-                    cmp(d, 'null'))
+    return (d is None or d == 'None' or
+                    d == '?' or
+                    d == '' or
+                    d == 'NULL' or
+                    d == 'null')
 
-def is_empty_data_delet(curLine):
+def is_empty_data_delet(curLine, label):
     sum = 0.0
+    court = 0.0
+    lineArr = []
     if isinstance(curLine, list):
-        for itrm in curLine:
+        size = len(curLine)
+        for i in range(size-1):
+            itrm = curLine[i + 1]
             if isNone(itrm):
                 itrm = 0.0
             else:
-                itrm = float(itrm)
-                itrm = abs(itrm)
-                if itrm >= 0:
-                    import math
-                    itrm = math.log(itrm+1)
-            sum += itrm
-    if sum >= 2 and sum <=10:
-        return False
-    else:
-        return True
-
-def loadDataSet():
+                try:
+                    itrm = float(itrm)
+                    if itrm > 0 and itrm < 1000:
+                        court += itrm
+                    lineArr.append(itrm)
+                except:
+                    continue
+    import math
+    sum = math.log(court + 1)
+    if label == 2.0: #负样本，吊销企业,事件发生较少
+        if sum <= 1:
+            lineArr = []
+            print ("sum:"+str(sum)+"===>label:"+str(label))
+    elif label == 1.0: #正样本，正常企业,事件发生较多
+        if sum >= 8:
+            print ("sum:" + str(sum) + "===>label:" + str(label))
+            lineArr = []
+    return lineArr
+def loadDataSet(filepath00):
     dataMat = []
     labelMat = []
-    fr = open(filepath)
-    count = 0.0
-    count01 = 0.0
-    for line in fr.readlines():
-        curLine = line.strip().split(',')
-        if is_empty_data_delet(curLine):
-            continue
-        lineArr = []
-        # 调整正负样本比例
-        label = float(curLine[-1])
-        size = len(curLine)
-        # for i in range(size - 1):
-        #     lineArr.append(float(curLine[i]))
-        # dataMat.append(lineArr)
-        # labelMat.append(label)
-        if label == 1.0:
-            for i in range(size-1):
-                lineArr.append(float(curLine[i]))
-            dataMat.append(lineArr)
-            labelMat.append(label)
-            count += 1
-        if label == 0.0:
-            if count01 >= count:
-                continue
-            for i in range(size - 1):
-                lineArr.append(float(curLine[i]))
-            labelMat.append(label)
-            dataMat.append(lineArr)
-            count01 += 1
-
+    # fr = open(filepath00)
+    # count = 0.0
+    # count01 = 0.0
+    # for line in fr.readlines():
+    #     curLine = line.strip().split(',')
+    #     # 调整正负样本比例
+    #     size = len(curLine)
+    #     if size < 64:
+    #         continue
+    #     label = float(curLine[0])
+    #     # for i in range(size - 1):
+    #     #     lineArr.append(float(curLine[i]))
+    #     # dataMat.append(lineArr)
+    #     # labelMat.append(label)
+    #     if label == 2.0: #负样本，吊销企业
+    #         if count >= 389081:
+    #             continue
+    #         lineArr = is_empty_data_delet(curLine, label)
+    #         if len(lineArr) < 60:
+    #             continue
+    #         dataMat.append(lineArr)
+    #         labelMat.append(label)
+    #         count += 1
+    #     if label == 1.0: #正样本，正常企业
+    #         if count01 > 389081:
+    #             continue
+    #         lineArr = is_empty_data_delet(curLine, label)
+    #         if len(lineArr) < 60:
+    #             continue
+    #         labelMat.append(label)
+    #         dataMat.append(lineArr)
+    #         count01 += 1
+    try:
+        # np.savetxt("dataMat_train.txt", dataMat, delimiter=',')
+        # np.savetxt("data_labelMat_train.txt", labelMat)
+        dataMat = np.loadtxt("dataMat_train.txt", delimiter=',')
+        dataMat = dataMat.tolist()
+        labelMat = np.loadtxt("data_labelMat_train.txt", delimiter=',')
+        labelMat = labelMat.tolist()
+    except :
+        print ("fffff")
     return dataMat, labelMat
+
+def random_read_txt(dataMat, labelMat,file01,num01):
+    import random
+    count01 = 0
+    with open(file01, 'r') as f:
+            lines = f.readlines()
+            flen = len(lines) - 1
+            if num01 <= flen:
+                for line in f.readlines():
+                    curLine = line.strip().split(',')
+                    if is_empty_data_delet(curLine):
+                        continue
+                    lineArr = []
+                    # 调整正负样本比例
+                    label = float(curLine[-1])
+                    size = len(curLine)
+                    for i in range(size - 1):
+                        lineArr.append(float(curLine[i]))
+                    dataMat.append(lineArr)
+                    labelMat.append(label)
+                    count01 += 1
+                    if count01 >= num01:
+                        break
+            elif num01 <= flen:
+                for i in range(1, flen):
+                    line = lines[random.randint(0, flen)]
+                    curLine = line.strip().split(',')
+                    if is_empty_data_delet(curLine):
+                        continue
+                    lineArr = []
+                    # 调整正负样本比例
+                    # write_txt(random_zc_txt, curLine)
+                    label = float(curLine[0])
+                    size = len(curLine)
+                    for i in range(size - 1):
+                        try:
+                            item = float(curLine[i + 1])
+                        except:
+                            item = str(item)
+                        lineArr.append(item)
+                    dataMat.append(lineArr)
+                    labelMat.append(label)
+                    count01 += 1
+                    if count01 >= num01:
+                        break
+    return dataMat, labelMat
+
+def write_txt(path, data):
+    '''
+     保存清洗数据
+    '''
+    f = open(path, 'w')
+    f.write(data.decode('unicode_escape'))
+    f.write('\n')  # write不会在自动行末加换行符，需要手动加上
+    f.flush()
+    f.close()
 
 def dealdata(X, y):
     '''
@@ -210,22 +314,29 @@ def dx_train():
     from sklearn import tree
     from sklearn import ensemble
     data, target = loadDataSet()
+    # try:
+    #     np.savetxt("data_train.txt", data)
+    #     data = np.loadtxt("data_train.txt", delimiter=',')
+    #     np.savetxt("target_train.txt", data)
+    #     target = np.loadtxt("target_train.txt", delimiter=',')
+    # except :
+    #     print ("fffff")
     X_train, X_test, y_train, y_test = dealdata(data, target)
-    from sklearn.ensemble import ExtraTreesClassifier
+    # from sklearn.ensemble import ExtraTreesClassifier
     '''
     附加树分类器。
 这个类实现了一个元估计适合许多随机决策树（又名多余的树木）的数据集，使用平均提高了拟合预测的精度和控制各子样本。
     '''
-    clf = ExtraTreesClassifier(criterion="entropy", n_estimators=250,
-                                  random_state=0)
+    # clf = ExtraTreesClassifier(n_estimators=130,
+    #                               random_state=0)
     # from sklearn.ensemble import RandomForestClassifier
     # clf = RandomForestClassifier(criterion="entropy", n_estimators=10, max_depth=None, min_samples_split=2, random_state=0)
     '''
     决策树
     '''
-    # clf = tree.DecisionTreeClassifier(max_depth=24, splitter="best", criterion='entropy',
-    #                                   max_features=24, min_samples_split=24,
-    #                                   max_leaf_nodes=24)
+    clf = tree.DecisionTreeClassifier(max_depth=64, splitter="best",
+                                      max_features=64, min_samples_split=64,
+                                      max_leaf_nodes=124)
 
     # 测试最优depth
     # depth = np.arange(1, 10)
@@ -240,11 +351,11 @@ def dx_train():
     clf = clf.fit(X_train, y_train)
     importances = clf.feature_importances_
     indices = np.argsort(importances)[::-1]
-    size = 25
+    size = len(dxFeature)
     # Print the feature ranking
-    print("Feature ranking:")
-    for f in range(size - 1):
-        print("%d. %s: %d (%f)" % (f + 1, dxFeature[f], indices[f], importances[indices[f]]))
+    print(str(size)+" Feature ranking:")
+    for f in range(size):
+        print("feature name: %s <==> importances rate: (%f)" % ( dxFeature[indices[f]], importances[indices[f]]))
 
     # from sklearn.externals import joblib
     # #保存模型
@@ -306,6 +417,132 @@ def dx_train():
     #                                          special_characters=True)  # doctest: +SKIP
     #     graph = graphviz.Source(dot_data)  # doctest: +SKIP
     #     graph.render("./sklearn_result01/dx_fig01"+str(i))
+def evaluate_function(clf,X_test,y_test):
+    ytestPre = clf.predict(X_test)
+    from sklearn.metrics import accuracy_score
+    accuracy = accuracy_score(y_test, ytestPre)
+    print(u'准确率： %.4f%%' % (100 * accuracy))
+    from sklearn import metrics
+    precision = metrics.precision_score(y_test, ytestPre, average='micro')  # 微平均，精确率
+    print(u'微平均，精确率： %.4f%%' % (100 * precision))
+    recall = metrics.recall_score(y_test, ytestPre, average='macro')
+    print(u'微平均，召回率： %.4f%%' % (100 * recall))
+    f1_score = metrics.f1_score(y_test, ytestPre, average='weighted')
+    print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
+    from sklearn.metrics import classification_report
+    print(classification_report(y_test, ytestPre, target_names=target_names))
+    from sklearn.metrics import cohen_kappa_score
+    kappa_score = cohen_kappa_score(y_test, ytestPre)
+    print(u'kappa score是一个介于(-1, 1)之间的数. score>0.8意味着好的分类；0或更低意味着不好（实际是随机标签）： %.4f%%' % (100 * kappa_score))
+    pre_result = clf.predict_proba(X_test)
+    ROC_AUC(y_test, pre_result)
+
+def plot_fig(clf,figpath):
+    import graphviz
+    feature_names = np.array(dx_feature2)
+    dot_data = tree.export_graphviz(clf, out_file=None,  # doctest: +SKIP
+                                         feature_names=feature_names,  # doctest: +SKIP
+                                         class_names=target_names,  # doctest: +SKIP
+                                         filled=True, rounded=True,  # doctest: +SKIP
+                                         special_characters=True)
+    graph = graphviz.Source(dot_data)  # doctest: +SKIP
+    graph.render(figpath)
+
+def dx_train2():
+
+    from sklearn import ensemble
+    data, target = loadDataSet(filepath2)
+
+    X_train, X_test, y_train, y_test = dealdata(data, target)
+    from sklearn.ensemble import ExtraTreesClassifier
+    '''
+    附加树分类器。
+    这个类实现了一个元估计适合许多随机决策树（又名多余的树木）的数据集，使用平均提高了拟合预测的精度和控制各子样本。
+    '''
+    clf = ExtraTreesClassifier(n_estimators=250,
+                                  random_state=0,max_depth=60)
+    # from sklearn.ensemble import RandomForestClassifier
+    # clf = RandomForestClassifier(criterion="entropy", n_estimators=10, max_depth=None, min_samples_split=2, random_state=0)
+    '''
+    决策树
+    '''
+    # clf = tree.DecisionTreeClassifier(max_depth=60, splitter="best", criterion='entropy',
+    #                                   max_features=60, min_samples_split=60,
+    #                                   max_leaf_nodes=124)
+
+
+    clf = clf.fit(X_train, y_train)
+    importances = clf.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    size = len(dx_feature2)
+    # Print the feature ranking
+    print(str(size)+" criterion='gini', Feature ranking:")
+    for f in range(size):
+        print("feature name: %s <==> importances rate: (%f)" % (dx_feature2[indices[f]], importances[indices[f]]))
+
+    # from sklearn.externals import joblib
+    # #保存模型
+    # joblib.dump(clf, "./sklearn_result01/dx_train_model.m", compress=3)
+    # clf = joblib.load("./sklearn_result01/dx_train_model.m")
+    evaluate_function(clf, X_test, y_test)
+    # plot_fig("./sklearn_result01/dx_fig01")
+
+def sklearn_single_classficatopn_test():
+    '''
+     sklearn 大致可以将这些分类器分成两类：
+     1）单一分类器
+     2）集成分类器
+    :return:
+    '''
+    data, target = loadDataSet(filepath2)
+    X_train, X_test, y_train, y_test = dealdata(data, target)
+    from sklearn.model_selection import cross_val_score
+    from sklearn.datasets import make_blobs
+    # meta-estimator
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.svm import SVC
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.ensemble import ExtraTreesClassifier
+    from sklearn.ensemble import AdaBoostClassifier
+    from sklearn.ensemble import GradientBoostingClassifier
+
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+    classifiers = {
+        'KN': KNeighborsClassifier(3),
+        'SVC': SVC(kernel="linear", C=0.025),
+        'SVC': SVC(gamma=2, C=1),
+        'DT': DecisionTreeClassifier(max_depth=5),
+        'RF': RandomForestClassifier(n_estimators=10, max_depth=5, max_features=1),  # clf.feature_importances_
+        'ET': ExtraTreesClassifier(n_estimators=10, max_depth=None),  # clf.feature_importances_
+        'AB': AdaBoostClassifier(n_estimators=100),
+        'GB': GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0),
+    # clf.feature_importances_
+        'GNB': GaussianNB(),
+        'LD': LinearDiscriminantAnalysis(),
+        'QD': QuadraticDiscriminantAnalysis()}
+
+    for name, clf in classifiers.items():
+        clf = clf.fit(X_train, y_train)
+        importances = clf.feature_importances_
+        indices = np.argsort(importances)[::-1]
+        size = len(dx_feature2)
+        # Print the feature ranking
+        print(str(size)+" criterion='gini', Feature ranking:")
+        for f in range(size):
+            print("feature name: %s <==> importances rate: (%f)" % (dx_feature2[indices[f]], importances[indices[f]]))
+
+        # from sklearn.externals import joblib
+        # #保存模型
+        # joblib.dump(clf, "./sklearn_result01/dx_train_model.m", compress=3)
+        # clf = joblib.load("./sklearn_result01/dx_train_model.m")
+        evaluate_function(clf, X_test, y_test)
+        # plot_fig("./sklearn_result01/dx_fig01")
+
+
+
 
 
 
@@ -331,7 +568,7 @@ def AdaBoost_dx_train():
     print('测试集的错误率:%.3f%%' % float(errArr[predictions != testLabelArr].sum() / len(testArr) * 100))
     importances = bdt.feature_importances_
     indices = np.argsort(importances)[::-1]
-    size = 25
+    size = len(dx_feature2)
     # Print the feature ranking
     print("Feature ranking:")
     for f in range(size - 1):
@@ -363,7 +600,7 @@ def AdaBoost_dx_train():
     f1_score = metrics.f1_score(testLabelArr, ytestPre, average='weighted')
     print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
     from sklearn.metrics import classification_report
-    target_names = ['label is 0', 'label is 1']
+    target_names = ['label is 1', 'label is 2']
     print(classification_report(testLabelArr, ytestPre, target_names=target_names))
     from sklearn.metrics import cohen_kappa_score
     kappa_score = cohen_kappa_score(testLabelArr, ytestPre)
@@ -382,5 +619,7 @@ def AdaBoost_dx_train():
 if __name__ == '__main__':
     # test03()
     # dx_train()
-    AdaBoost_dx_train()
+    # dx_train2()
+    sklearn_single_classficatopn_test()
+    # AdaBoost_dx_train()
     # feature_importance()
