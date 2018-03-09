@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # print(rules)
 
     # 毒蘑菇
-    mushDatSet = [line.split() for line in open('mushroom.dat').readlines()]
+    mushDatSet = [line.split(',') for line in open('mushroom.dat').readlines()]
     L, suppData = apriori(mushDatSet, minSupport=0.3)
     # rules = generateRules(L, suppData, minConf=0.9)
     # print(rules)

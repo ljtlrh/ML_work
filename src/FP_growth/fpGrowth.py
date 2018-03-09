@@ -134,7 +134,7 @@ if __name__ == "__main__":
     print(freqItems)
 
     # 该文件过大，没有提供，去https://www.manning.com/books/machine-learning-in-action下载源代码
-    # parsedDat = [line.split() for line in open("kosarak.dat").readlines()]
+    # parsedDat = [line.split(',') for line in open("kosarak.dat").readlines()]
     # initSet = createInitSet(parsedDat)
     # myFPtree, myHeaderTab = createTree(initSet, 100000)
     # myFreqList=[]
