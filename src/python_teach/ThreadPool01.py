@@ -16,7 +16,6 @@ URL: http://www.163.com Total Requests Number: 100 Concurrent Requests Number: 1
 """
 
 import sys
-import urllib2
 import threading
 import Queue
 import time
@@ -75,7 +74,8 @@ ERROR_NUM = 0
 
 def do_job(args):
 	try:
-		html = urllib2.urlopen(args)
+		# html = urllib2.urlopen(args)
+		print ("args:"+str(args))
 	except Exception, e:
 		print e
 		global ERROR_NUM
@@ -110,7 +110,8 @@ def main():
 	print "Total Requests Number: ", options.num_of_req
 	print "Concurrent Requests Number: ", options.con_req
 	print "Total Time Cost(seconds): ", (end-start)
-	print "Average Time Per Request: ", (end-start)/int(options.num_of_req)
+	print "Average Time Per0 1...." \
+		  "00Request: ", (end-start)/int(options.num_of_req)
 	print "Average Requests Number Per Second: ", int(options.num_of_req)/(end-start)
 	print "Total Error Number: ", ERROR_NUM
 
