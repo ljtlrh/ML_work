@@ -6,6 +6,6 @@
 # @File    : copy_data.py
 # @Software: PyCharm
 class CopyData(object):
-    # f = open(r'C:\Users\n\Desktop\data.csv', 'r')
+    f = open(r'C:\Users\n\Desktop\data.csv', 'r')
     # cur.copy_from(f, temp_unicommerce_status, sep=',')
     # f.close()
