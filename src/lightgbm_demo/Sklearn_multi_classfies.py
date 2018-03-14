@@ -429,7 +429,7 @@ def AdaBoost_dx_train():
     # joblib.dump(clf, "./sklearn_result01/dx_train_model.m", compress=3)
     # clf = joblib.load("./sklearn_result01/dx_train_model.m")
     import graphviz
-    feature_names = np.array(dxFeature)
+    # feature_names = np.array(dxFeature)
     # TP = 0
     # FP = 0
     # TN = 0
@@ -450,7 +450,7 @@ def AdaBoost_dx_train():
     f1_score = metrics.f1_score(testLabelArr, ytestPre, average='weighted')
     print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
     from sklearn.metrics import classification_report
-    target_names = ['label is 1', 'label is 2']
+    # target_names = ['label is 1', 'label is 2']
     print(classification_report(testLabelArr, ytestPre, target_names=target_names))
     from sklearn.metrics import cohen_kappa_score
     kappa_score = cohen_kappa_score(testLabelArr, ytestPre)
@@ -466,10 +466,146 @@ def AdaBoost_dx_train():
     # graph = graphviz.Source(dot_data)  # doctest: +SKIP
     # graph.render("./sklearn_result01/dx_adaboost_fig01")
 
+
+def xgboost_train():
+    target_names = ['label is 2', 'label is 1']
+    import xgboost as xgb
+    dataMat, labelMat = loadDataSet(filepath2)
+    dataMat = np.array(dataMat)
+    labelMat = np.array(labelMat)
+    labelMat = np.where(labelMat <2, labelMat, 0)
+    X_train, X_test, y_train, y_test = dealdata(dataMat, labelMat)
+    max_depth = 10
+    subsample = 0.95
+    num_round = 2000
+    early_stopping_rounds = 50
+    params = {'max_depth': max_depth, 'eta': 0.1, 'silent': 1, 'alpha': 0.5, 'lambda': 0.5,
+                   'eval_metric': 'auc', 'subsample': subsample, 'objective': 'binary:logistic'}
+    num_round = num_round
+    early_stopping_rounds = early_stopping_rounds
+    clf = xgb.XGBClassifier(learning_rate = 0.1,
+    n_estimators =30,
+    max_depth =40,
+    min_child_weight = 1,
+    gamma = 0.15,
+    subsample = 0.8,
+    colsample_bytree = 0.8,
+    nthread = 4,
+    scale_pos_weight = 1,
+    seed = 27)
+    clf.fit(X_train, y_train, early_stopping_rounds=10, eval_metric="auc",
+            eval_set=[(X_test, y_test)])
+
+    # dtrain = xgb.DMatrix(X_train)
+    # deval = xgb.DMatrix(y_train)
+    # clf = xgb.train(params, dtrain, num_boost_round=num_round,
+    #                         evals=[(dtrain, 'train'), (deval, 'eval')],
+    #                         early_stopping_rounds=early_stopping_rounds, verbose_eval=False)
+    # print('get best eval auc : %s, in step %s' % (clf.best_score, clf.best_iteration))
+    ytestPre = clf.predict(X_test)
+    from sklearn.metrics import accuracy_score
+    accuracy = accuracy_score(y_test, ytestPre)
+    print(u'准确率： %.4f%%' % (100 * accuracy))
+    from sklearn import metrics
+    precision = metrics.precision_score(y_test, ytestPre, average='micro')  # 微平均，精确率
+    print(u'微平均，精确率： %.4f%%' % (100 * precision))
+    recall = metrics.recall_score(y_test, ytestPre, average='macro')
+    print(u'微平均，召回率： %.4f%%' % (100 * recall))
+    f1_score = metrics.f1_score(y_test, ytestPre, average='weighted')
+    print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
+    from sklearn.metrics import classification_report
+    print(classification_report(y_test, ytestPre, target_names=target_names))
+    from sklearn.metrics import cohen_kappa_score
+    kappa_score = cohen_kappa_score(y_test, ytestPre)
+    print(u'kappa score是一个介于(-1, 1)之间的数. score>0.8意味着好的分类；0或更低意味着不好（实际是随机标签）： %.4f%%' % (100 * kappa_score))
+    pre_result = clf.predict_proba(X_test)
+
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import roc_curve
+    fpr, tpr, thresholds = roc_curve(y_test, pre_result[:, 1], pos_label=1)
+    from sklearn.metrics import auc
+    auc_area = auc(fpr, tpr)
+    # 画图，只需要plt.plot(fpr,tpr),变量roc_auc只是记录auc的值，通过auc()函数能计算出来
+    plt.plot(fpr, tpr, lw=1, label='ROC  (area = %0.2f)' % (auc_area))
+    print("auc_area:" + str(auc_area))
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic example')
+    plt.legend(loc="lower right")
+    plt.show()
+
+
+def lightgbm_train():
+    target_names = ['label is 2', 'label is 1']
+    import xgboost as xgb
+    dataMat = np.loadtxt("dataMat_train.txt", delimiter=',')
+    labelMat = np.loadtxt("data_labelMat_train.txt", delimiter=',')
+    labelMat = np.where(labelMat <2, labelMat, 0)
+    X_train, X_test, y_train, y_test = dealdata(dataMat, labelMat)
+    max_depth = 3
+    subsample = 0.95
+    num_round = 2000
+    early_stopping_rounds = 50
+    params = {'max_depth': max_depth, 'eta': 0.1, 'silent': 1, 'alpha': 0.5, 'lambda': 0.5,
+                   'eval_metric': 'auc', 'subsample': subsample, 'objective': 'binary:logistic'}
+    num_round = num_round
+    early_stopping_rounds = early_stopping_rounds
+    import lightgbm
+    clf = lightgbm.LGBMClassifier(boosting_type='gbdt', num_leaves=2 ** 3, objective='binary',
+                                  max_depth=8, learning_rate=0.1, n_estimators=100,
+                                  metric="auc",
+                                  reg_alpha=0.1,
+                                  )
+    clf.fit(X_train, y_train, early_stopping_rounds=10, eval_metric="auc",
+            eval_set=[(X_test, y_test)])
+
+    # dtrain = xgb.DMatrix(X_train)
+    # deval = xgb.DMatrix(y_train)
+    # clf = xgb.train(params, dtrain, num_boost_round=num_round,
+    #                         evals=[(dtrain, 'train'), (deval, 'eval')],
+    #                         early_stopping_rounds=early_stopping_rounds, verbose_eval=False)
+    # print('get best eval auc : %s, in step %s' % (clf.best_score, clf.best_iteration))
+    ytestPre = clf.predict(X_test)
+    from sklearn.metrics import accuracy_score
+    accuracy = accuracy_score(y_test, ytestPre)
+    print(u'准确率： %.4f%%' % (100 * accuracy))
+    from sklearn import metrics
+    precision = metrics.precision_score(y_test, ytestPre, average='micro')  # 微平均，精确率
+    print(u'微平均，精确率： %.4f%%' % (100 * precision))
+    recall = metrics.recall_score(y_test, ytestPre, average='macro')
+    print(u'微平均，召回率： %.4f%%' % (100 * recall))
+    f1_score = metrics.f1_score(y_test, ytestPre, average='weighted')
+    print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
+    from sklearn.metrics import classification_report
+    print(classification_report(y_test, ytestPre, target_names=target_names))
+    from sklearn.metrics import cohen_kappa_score
+    kappa_score = cohen_kappa_score(y_test, ytestPre)
+    print(u'kappa score是一个介于(-1, 1)之间的数. score>0.8意味着好的分类；0或更低意味着不好（实际是随机标签）： %.4f%%' % (100 * kappa_score))
+    pre_result = clf.predict_proba(X_test)
+
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import roc_curve
+    fpr, tpr, thresholds = roc_curve(y_test, pre_result[:, 1], pos_label=1)
+    from sklearn.metrics import auc
+    auc_area = auc(fpr, tpr)
+    # 画图，只需要plt.plot(fpr,tpr),变量roc_auc只是记录auc的值，通过auc()函数能计算出来
+    plt.plot(fpr, tpr, lw=1, label='ROC  (area = %0.2f)' % (auc_area))
+    print("auc_area:" + str(auc_area))
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic example')
+    plt.legend(loc="lower right")
+    plt.show()
+
+
 if __name__ == '__main__':
     # test03()
-    dx_train()
+    # dx_train()
     # dx_train2()
-    # sklearn_single_classficatopn_test()
+    sklearn_single_classficatopn_test()
     # AdaBoost_dx_train()
     # feature_importance()
