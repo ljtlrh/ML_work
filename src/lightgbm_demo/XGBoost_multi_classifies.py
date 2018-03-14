@@ -9,11 +9,10 @@
    XGBoost官方给的二分类问题的例子是区别蘑菇有无毒，数据集和代码都可以在xgboost中的demo文件夹对应找到，我是用的Anaconda安装的XGBoost，实现起来比较容易。唯一的梗就是在终端中运行所给命令：  ../../xgboost mushroom.conf 时会报错，是路径设置的问题，所以我干脆把xgboost文件夹下的xgboost.exe拷到了mushroom.conf配置文件所在文件夹下，这样直接定位到该文件夹下就可以运行： xgboost mushroom.conf。二分类数据预处理，也就是data wraggling部分的代码有一定的借鉴意义，值得一看。
     多分类问题给的例子是根据34个特征识别6种皮肤病，由于终端中运行runexp.sh没有反应，也不报错，所以我干脆把数据集下载到对应的demo文件夹下了,主要的代码如下，原来有部分比较难懂的语句我自己加了一些注释，这样理解起来就会顺畅多了。
 '''
-
+[('HP0',), ('HP1225',), ('HP16',), ('HP2000',), ('HP2010',), ('HP2074',), ('HP78',), ('HP820',)]
 #! /usr/bin/python
 import numpy as np
 import xgboost as xgb
-
 filepath00 = "recomend_h_cluster_users.csv"
 
 def loadDataSet():
