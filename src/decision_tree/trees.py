@@ -49,6 +49,10 @@ def is_empty_data_delet(curLine):
         return True
 
 def loadDataSet():
+    """
+    加载数据集
+    :return:
+    """
     dataMat = []
     labelMat = []
     fr = open(filepath)
@@ -119,10 +123,11 @@ def splitDataSet(dataSet, axis, value):
             retDataSet.append(reducedFeatVec)
     return retDataSet
 
-'''
-    选择最佳的划分方式
-'''
+
 def chooseBeatFeatureToSplit(dataSet):
+    """
+        选择最佳的划分方式
+    """
     numFeatures = len(dataSet[0]) - 1
     # 计算信息熵，对平均不确定性的度量
     baseEntropy = calcShannonEnt(dataSet)
@@ -145,7 +150,7 @@ def chooseBeatFeatureToSplit(dataSet):
     return bestFeature, bestInfoGain
 
 def majorityCnt(classList):
-    '''
+    """
     如果数据集已经处理了所有特征属性，但类别标签依然不是唯一的，
     要定义叶子节点，多采用投票表决的方法决定该叶子节点的分类
     计算每个特征出现的频率：
@@ -156,7 +161,7 @@ operator to sort the dictionary by the keys and return the class that occurs wit
 greatest frequency.
     :param classList:
     :return:
-    '''
+    """
     classCount={}
     for vote in classList:
         if vote not in classCount.keys():
