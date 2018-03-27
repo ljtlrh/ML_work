@@ -468,9 +468,8 @@ def AdaBoost_dx_train():
 
 
 def xgboost_train():
-    target_names = ['label is 2', 'label is 1']
     import xgboost as xgb
-    dataMat, labelMat = loadDataSet(filepath2)
+    dataMat, labelMat = loadDataSet()
     dataMat = np.array(dataMat)
     labelMat = np.array(labelMat)
     labelMat = np.where(labelMat <2, labelMat, 0)
@@ -604,8 +603,9 @@ def lightgbm_train():
 
 if __name__ == '__main__':
     # test03()
-    # dx_train()
+    dx_train()
     # dx_train2()
-    sklearn_single_classficatopn_test()
+    # sklearn_single_classficatopn_test()
     # AdaBoost_dx_train()
     # feature_importance()
+    # xgboost_train()

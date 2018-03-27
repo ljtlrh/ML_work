@@ -1,8 +1,17 @@
-
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+"""
+@version: python2.7
+@author: ‘liujiantao‘
+@contact: 1329331182@qq.com
+@site:
+@software: PyCharm
+@file: kMeans.py
+@time: 18-3-27 上午9:50
+"""
 from numpy import *
 from time import sleep
-import urllib.request
-import urllib.parse
+import  requests
 import  json
 import matplotlib
 import matplotlib.pyplot as plt
@@ -102,11 +111,12 @@ def geoGrab(stAddress, city):
     params['flags'] = 'J'
     params['appid'] = 'ppp68N8t'
     params['location'] = '%s %s' % (stAddress, city)
-    url_params = urllib.parse.urlencode(params)
-    yahooApi = apiStream + url_params
-    print(yahooApi)
-    c = urllib.request.urlopen(yahooApi)
-    return json.loads(c.read())
+    # url_params = urllib.parse.urlencode(params)
+    # yahooApi = apiStream + url_params
+    # print(yahooApi)
+    # c = urllib.request.urlopen(yahooApi)
+
+    # return json.loads(c.read())
 
 def massPlaceFind(fileName):
     fw = open('places.txt', 'w')
