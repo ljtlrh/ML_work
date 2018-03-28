@@ -7,6 +7,7 @@
 # @Software: PyCharm
 from __future__ import print_function
 from pyspark import SparkConf, SparkContext
+from pyspark.mllib.clustering import KMeans
 from pyspark.sql import SparkSession
 hdfspath = 'hdfs://localhost:9000'
 ml_100k = hdfspath + '/train/ml-100k/'
@@ -39,6 +40,7 @@ def test03():
     user_data = sc.textFile(ml_100k+"u.user")
     # 打印加载的用户信息第一条
     user_data.first()
+    # KMeans.train()
 
     # 用"|"分割符分割每一行的数据，然后将数据返回到user_fields
     user_fields = user_data.map(lambda line: line.split("|"))
