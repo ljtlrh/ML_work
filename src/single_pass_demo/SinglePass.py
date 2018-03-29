@@ -64,7 +64,7 @@ def single_pass(data):
         else:
             flag = 0
             sort_sim = {}
-            # print len(category)
+            print len(category)
             for cate in category:
                 sim = similarity(data[cate], data[datum])
                 if sim > 0.01:
