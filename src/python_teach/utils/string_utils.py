@@ -10,8 +10,6 @@ import sys
 import datetime
 import traceback
 
-reload(sys)
-sys.setdefaultencoding("utf-8")
 
 class StringUtils(object):
     """
@@ -133,5 +131,5 @@ if __name__=="__main__":
 
     start = datetime.datetime.now()
     if StringUtils.contain_var_in_string("111","我|111发现_推荐|我听|发现"):
-        print "0:00:00.000021"
+        print ("0:00:00.000021")
     print("sss=>"+str(datetime.datetime.now() - start))

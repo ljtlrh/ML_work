@@ -51,6 +51,17 @@ Kaggle 2010年在墨尔本创立的，主要为开发商和数据科学家提供
 1.为用户
 （1）用相同时间段的用户历史数据去预测未来相同时间段的用户历史行为。
 （2）
-
-
+begin
+将用户当前情景特征向量 V输入情景分类器，最相似的前个3个情景簇群设为Hi、Hj、Hk。从持久化数据仓库中取出SimUsers=[( s1，u1), ( s2，u2),( s3，u3),……]。
+    Loop 遍历 SimUsers ，( s，u)  in SimUsers：
+    loop 遍历 SimUsersRateSItems ( Ru，Su) in SimUsersRateSItems:
+        if u1=Su1:
+            Ru1 = Ru1*s1
+    loop 遍历 RateItems  ( R，SI,cnt) in   RateItems： 
+        R1 = R1*Ru1*cnt
+    loop 遍历 RateOtherItems (OR，I,ocnt) in RateOtherItems:
+        if SI=I:
+            OR = R*OR*ocnt
+     得到候选产品及其兴趣度权重集合ItemDegree
+end 
 

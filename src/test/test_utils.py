@@ -3,7 +3,8 @@
 # @createTime    : 18-3-2 下午3:54
 # @author  : 李鸢
 import json
-from common.utils.string_utils import StringUtils
+
+from ML_work.src.python_teach.utils.string_utils import StringUtils
 
 
 class TestUtils(object):
@@ -13,14 +14,14 @@ class TestUtils(object):
         如果参数列表最后一位为 False 就拒绝打印
         """
 
-        print StringUtils.decode(lists)
+        print (StringUtils.decode(lists))
 
     @staticmethod
     def print_domain(obj):
         """
         领域对象打印
         """
-        print json.dumps(obj, ensure_ascii=False, indent=4, default=lambda x: x.__dict__)
+        print (json.dumps(obj, ensure_ascii=False, indent=4, default=lambda x: x.__dict__))
 
     @staticmethod
     def equal(var1, var2):
