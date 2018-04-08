@@ -72,48 +72,16 @@ class MyThread(threading.Thread):
 
 ERROR_NUM = 0
 
-def do_job(args):
-	try:
-		# html = urllib2.urlopen(args)
-		print ("args:"+str(args))
-	except Exception, e:
-		print e
-		global ERROR_NUM
-		ERROR_NUM += 1
 
-
-def parse():
-	"""parse the args"""
-	parser = OptionParser(description="The scripte is used to simulate apache benchmark(sending requests and testing the server)")
-	parser.add_option("-n", "--number", dest="num_of_req", action="store", help="Number of requests you want to send", default=1)
-	parser.add_option("-c", "--concurrent", dest="con_req", action="store", help="Number of concurrent requests you set", default=1)
-	parser.add_option("-u", "--url", dest="urlpth", action="store", help="The url of server you want to send to")
-	(options, args) = parser.parse_args()
-	return options
 
 def main():
 	"""main function"""
-	start = time.time()
-	options = parse()
-
-	if not options.urlpth:
-		print 'Need to specify the parameter option "-u"!'
-	if '-h' in sys.argv or '--help' in sys.argv:
-		print __doc__
 
 	tp = ThreadPool(options.urlpth, int(options.num_of_req), int(options.con_req))
 	tp.wait_all_complete()
 	end = time.time()
 
-	print "==============================================="
-	print "URL: ", options.urlpth
-	print "Total Requests Number: ", options.num_of_req
-	print "Concurrent Requests Number: ", options.con_req
-	print "Total Time Cost(seconds): ", (end-start)
-	print "Average Time Per0 1...." \
-		  "00Request: ", (end-start)/int(options.num_of_req)
-	print "Average Requests Number Per Second: ", int(options.num_of_req)/(end-start)
-	print "Total Error Number: ", ERROR_NUM
+
 
 
 if __name__ == '__main__':

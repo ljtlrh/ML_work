@@ -23,7 +23,7 @@ def f(x):
 from multiprocessing import Process
 
 def f1(name):
-    print 'hello', name
+    print ('hello', name)
 
 def test_pool():
     p = Pool(5)

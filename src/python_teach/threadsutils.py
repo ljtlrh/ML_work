@@ -92,11 +92,9 @@ ERROR_NUM = 0
 
 def do_job(args):
 	try:
-
 		# html = urllib2.urlopen(args)
 		print ("args:"+str(args))
-	except Exception, e:
-		print e
+	except Exception as e:
 		global ERROR_NUM
 		ERROR_NUM += 1
 
