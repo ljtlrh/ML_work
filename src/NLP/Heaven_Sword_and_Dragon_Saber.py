@@ -19,10 +19,11 @@ class HeavenSwordAndDragonSaber(object):
     数据分词，清洗
     '''
     renming_file = "yttlj_renming.csv"
+    # 添加自定义词典
     jieba.load_userdict(renming_file)
     stop_words_file = "stopwordshagongdakuozhan.txt"
     stop_words = pd.read_csv(stop_words_file, header=None, quoting=3, sep="\t")[0].values
-    corpus = "yttlj.txt"
+    corpus = "/home/sinly/ljtstudy/code/ML_work/src/NLP/JinyongNovel/倚天屠龙记/YITIAN01.TXT"
     yttlj = pd.read_csv(corpus, encoding="gb18030", header=None, names=["sentence"])
 
     def cut_join(self, s):
@@ -175,6 +176,7 @@ class HeavenSwordAndDragonSaber(object):
     import pandas as pd
     import numpy as np
     import pygraphviz
+    import graphviz
     from networkx.drawing.nx_agraph import graphviz_layout
     '''
 
