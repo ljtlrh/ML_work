@@ -5,7 +5,7 @@
 # @Site    : https://blog.csdn.net/baixiaozhe/article/details/54409966
 # @File    : cnn_boston.py
 # @Software: PyCharm
-# 参考http://blog.csdn.net/jerry81333/article/details/52979206 周莫烦的系列视频教程，跪地推荐
+# 参考http://blog.csdn.net/jerry81333/article/details/52979206 周莫烦的系列视频教程
 import numpy as np
 from sklearn import preprocessing
 import tensorflow as tf

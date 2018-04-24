@@ -15,28 +15,42 @@ the Global Interpreter Lock by using subprocesses instead of threads. Due to thi
 the multiprocessing module allows the programmer to fully leverage multiple processors on a given machine.
 It runs on both Unix and Windows.
 '''
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 
-def f(x):
-    return x*x
-
-from multiprocessing import Process
 
 def f1(name):
     print ('hello', name)
 
-def test_pool():
-    p = Pool(5)
-    print(p.map(f, [1, 2, 3]))
 
-def test_Process():
-    p = Process(target=f1, args=('bob',))
-    p.start()
-    p.join()
+def f(x):
+    return x * x
+
+class fff(object):
+
+
+
+    def test_pool(self):
+        p = Pool(5)
+        print(p.map_async(f1, [1, 2, 3]))
+        print(p.map_async(f1, [1, 32, 3]))
+        print(p.map_async(f, [1, 42, 3]))
+
+    def test_Process(self):
+        p1 = Process(target=f1, args=('bob',))
+        p2 = Process(target=f1, args=('aaa',))
+        p3 = Process(target=f1, args=('sss',))
+        p1.start()
+        p2.start()
+        p3.start()
+        p1.join()
+        p2.join()
+        p3.join()
 if __name__ == '__main__':
     import datetime
     start = datetime.datetime.now()
     # test_pool()
-    test_Process()
+    fff = fff()
+    # fff.test_Process()
+    fff.test_pool()
     end = datetime.datetime.now()
     print ("Cost Time:"+str(end - start))
