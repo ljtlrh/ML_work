@@ -6,6 +6,7 @@ G:\spark\spark-2.1.1-bin-hadoop2.7\hadoop-2.7.3\etc\hadoop>hdfs namenode -format
 启动：
 cd G:\spark\spark-2.1.1-bin-hadoop2.7\hadoop-2.7.3\sbin
 切换到 sbin目录 执行：start-dfs.cmd 
+start-all.cmd
 
 停止：
 stop-all.cmd

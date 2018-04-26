@@ -12,7 +12,7 @@
 import time
 import threading
 import pycurl
-import StringIO
+import io
 import re
 import json
 
@@ -23,19 +23,18 @@ def time_count():
     global st
     i=10
     while i>0:
-        print "i:%d"%i
         i-=1
         time.sleep(1)
         if st==1:
             st=0
             return
 
-    print "there is no running task"
+    # print "there is no running task"
 
 
 def check_state():
     st_num=0
-    b = StringIO.StringIO()
+    b = io.StringIO()
     c = pycurl.Curl()
     checkurl = "http://192.168.31.10:8088/ws/v1/cluster/apps" #需要监控的地址
     c.setopt(pycurl.URL, checkurl)
@@ -78,7 +77,7 @@ def aaa():
     imgre = re.compile(reg)
     imglist = re.findall(imgre, html)
     for content in imglist:
-        print content
+        print (content)
 
 if __name__ == '__main__':
     aaa()
@@ -87,7 +86,7 @@ if __name__ == '__main__':
     pnum=0;
     while True:
         pnum+=1
-        print 'check state %d\n'%pnum
+        print ('check state %d\n'%pnum)
         re_state=check_state()
         if re_state==0:                                        #no task is running :
             if t1.is_alive() ==False:
