@@ -7,7 +7,7 @@ http://192.168.31.10:50070/webhdfs/v1/?op=LISTSTATUS
 https://192.168.31.10:8088/jmx
 https://192.168.31.10:8088/jmx?qry=Hadoop:*
 https://192.168.31.10:8088/jmx?qry=Hadoop:service=ResourceManager,name=QueueMetrics,q0=root,user=iteblog::tag.Hostname
-
+http://127.0.0.1:8088/cluster/scheduler
 
 Hadoop集群一般需要关注的几个重要指标 :
 

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # encoding=utf-8
 
-import sys
-
 import tornado.web
 from tornado.web import URLSpec
 from tornado.ioloop import IOLoop
@@ -11,8 +9,6 @@ from scpy.logger import get_logger
 
 from handler_helper import *
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 logger = get_logger(__file__)
 
