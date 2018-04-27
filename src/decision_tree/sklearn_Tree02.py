@@ -164,7 +164,7 @@ def dx_train():
     # clf = joblib.load("./sklearn_result01/dx_train_model.m")
     # import graphviz
 
-    # dxFeature = ["judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt", "near_3_year_judgedoc_cnt",
+    # feature_name = ["judgedoc_is_no", "judgedoc_cnt", "litigant_defendant_cnt", "near_3_year_judgedoc_cnt",
     #              "near_2_year_judgedoc_cnt", "near_1_year_judgedoc_cnt", "litigant_defendant_contract_dispute_cnt",
     #              "litigant_defendant_bust_cnt", "litigant_defendant_infringe_cnt",
     #              "litigant_defendant_Intellectual_property_owner_cnt", "litigant_defendant_unjust_enrich_cnt",
@@ -173,7 +173,7 @@ def dx_train():
     #              "near_1_year_shixin_cnt", "court_announce_is_no",
     #              "court_announce_cnt", "court_announce_litigant_cnt", "court_notice_is_no", "court_notice_cnt",
     #              "court_notice_litigant_cnt"]
-    # feature_names = np.array(dxFeature)
+    # feature_names = np.array(feature_name)
     # TP = 0
     # FP = 0
     # TN = 0

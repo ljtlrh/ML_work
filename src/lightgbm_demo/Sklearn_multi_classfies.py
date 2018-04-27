@@ -429,7 +429,7 @@ def AdaBoost_dx_train():
     # joblib.dump(clf, "./sklearn_result01/dx_train_model.m", compress=3)
     # clf = joblib.load("./sklearn_result01/dx_train_model.m")
     import graphviz
-    # feature_names = np.array(dxFeature)
+    # feature_names = np.array(feature_name)
     # TP = 0
     # FP = 0
     # TN = 0
