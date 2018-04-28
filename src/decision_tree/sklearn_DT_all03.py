@@ -517,7 +517,7 @@ def dx_train():
     #     graph.render("./sklearn_result01/dx_fig01"+str(i))
     dtp = DecisionTreeClassifierParser(clf, feature_name)
     res = dtp.get_parsed_tree()
-    print json.dumps(res, ensure_ascii=False, indent=2)
+    print (json.dumps(res, ensure_ascii=False, indent=2))
 
 
 def evaluate_function(clf, X_test, y_test):

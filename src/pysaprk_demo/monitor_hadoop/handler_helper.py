@@ -12,6 +12,10 @@
 import datetime
 import tornado
 
+from ML_work.src.pysaprk_demo.monitor_hadoop.monitor_get_data import MonitorGetData
+
+md = MonitorGetData()
+
 
 class APIMonitorHandler(tornado.web.RequestHandler):
     """
@@ -23,9 +27,8 @@ class APIMonitorHandler(tornado.web.RequestHandler):
     _ACTION_CHOICE = ["AccessLogs", "RecentAccess", "AccessFrequency"]
 
     def get(self, *args, **kwargs):
-        last_success_request = get_recent_success_cpcn_request_service()
-        last_fail_request = get_recent_fail_cpcn_request_service()
-
+        heap_memory = md.GetHeapMemory()
+        fsn_name_system_state = md.FSNamesystemState()
         self.render("../templates/index.html",
-                    last_success_request=last_success_request,
-                    last_fail_request=last_fail_request)
+                    last_success_request=heap_memory,
+                    last_fail_request=fsn_name_system_state)
