@@ -766,7 +766,7 @@ def testRead(spark, sc, path, filename):
     #                        "select zczjbz  from temp AS t GROUP  BY  zczjbz) AS tt")
     # resdf.show()
     sqlContext.sql("select  * from temp t ").show()
-    sqlContext.sql("select  COUNT (DISTINCT  _c0) from temp t ").show()
+    sqlContext.sql("select  COUNT (DISTINCT  _c0) from temp t WHERE t.zczjbz =156 or t.zczjbz =0").show()
     # sqlContext.sql("select *  from  temp t WHERE _c0 ='上海双田橡胶（集团）公司' ").show()
 
 if __name__ == '__main__':

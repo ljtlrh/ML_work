@@ -46,6 +46,7 @@ scp ./SC_ETL01.py  scdata@192.168.31.10:~/app/python/risk-model/etl_ljt_script/
 下载:
 hadoop fs -getmerge hdfs://192.168.31.10:9000/scdata/riskModel/update_trade_cnt_feature_data.csv update_trade_cnt_feature_data.csv
 hadoop fs -getmerge hdfs://192.168.31.10:9000/scdata/riskModel/new_update_LGBM_model_test_data.csv LGBM_model_test.csv
+hadoop fs -getmerge hdfs://192.168.31.10:9000/scdata/riskModel/new_version_all_features.csv new_version_all_features.csv
 注：提取数据时的sql语句
 
 --执行

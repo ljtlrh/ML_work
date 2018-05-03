@@ -6,7 +6,7 @@ from tornado.web import URLSpec
 from tornado.ioloop import IOLoop
 import numpy as np
 
-from ML_work.src.pysaprk_demo.monitor_hadoop.handler_helper import *
+from handler_helper import *
 
 import tornado.httpserver
 import tornado.ioloop
@@ -66,9 +66,7 @@ class RegisterHandler(tornado.web.RequestHandler):   #注册
 
 
 HANDLERS = [
-    (r'static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
-    (r'media/(.*)', tornado.web.StaticFileHandler, {'path': 'media/'}),
-
+    (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static/'}),
     URLSpec(r'/api/hadoop/monitor/logger', APIMonitorHandler,
             name=APIMonitorHandler.__name__),
             (r'/', IndexHandler),
