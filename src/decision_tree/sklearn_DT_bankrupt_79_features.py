@@ -9,9 +9,20 @@ import json
 import numpy as np
 import pandas as pd
 from sklearn import tree
-import matplotlib.pyplot as plt
 
+def get_company_names01(path):
+    company_names = []
+    with open(path) as f:
+        for data in f.readlines():
+            if data.startswith('#'):
+                continue
+            name = data.decode('utf-8')
+            # print name
+            company_names.append(name.strip("\n"))
+    return company_names
 
+bankrupt_company_list01 = get_company_names01(
+    "/home/sinly/ljtstudy/code/ML_work/src/pysaprk_demo/data/bankrupt_company.txt")
 class DecisionTreeClassifierParser(object):
     '''
 	对决策树进行解析
@@ -152,6 +163,7 @@ feature_name = ["_c1", "network_share_shixin_cnt", "network_share_zhixing_cnt", 
                 "trademark_three_year_rate", "industry_13", "industry_26", "industry_519", "industry_18",
                 "industry_1810", "industry_62", "industry_dx_rate", "industry_dx_cnt", "industry_all_cnt"]
 
+feature_name = ["regcap",  "established_years",  "industry_dx_rate",  "industry_all_cnt",  "industry_dx_cnt",  "net_judgedoc_defendant_cnt",  "fr_change_cnt",  "share_change_cnt",  "network_share_judge_doc_cnt",  "regcap_change_cnt", "court_notice_is_no", "judgedoc_cnt", "address_change_cnt", "network_share_zhixing_cnt", "trade_mark_cnt", "cancel_cnt", "network_share_cancel_cnt", "litigant_result_sum_money", "litigant_defendant_bust_cnt", "zhixing_cnt", "judge_doc_cnt", "zczjbz", "near_3_year_judgedoc_cnt", "court_announce_litigant_cnt", "bidding_cnt", "litigant_defendant_contract_dispute_cnt", "network_share_shixin_cnt", "near_2_year_judgedoc_cnt",  "litigant_defendant_unjust_enrich_cnt",  "near_3_year_shixin_cnt",  "hy_shixin_cnt",  "network_share_sszc_cnt",  "estate_auction_cnt",  "shixin_is_no",  "invent_patent_cnt",  "litigant_defendant_infringe_cnt",  "utility_publish_cnt",  "shixin_cnt",  "near_1_year_judgedoc_cnt",  "near_1_year_shixin_cnt",  "court_notice_cnt",  "court_notice_litigant_cnt",    "court_announce_is_no",  "fine_cnt",  "court_announce_cnt",  "sszc_cnt",  "near_2_year_shixin_cnt",  "invent_publish_cnt",  "real_estate_auction_cnt"]
 
 def isNone(d):
     from operator import eq as cmp
@@ -304,7 +316,7 @@ def write_txt(path, data):
     '''
      保存清洗数据
     '''
-    f = open(path, 'w')
+    f = open(path, 'a')
     f.write(data.decode('unicode_escape'))
     f.write('\n')  # write不会在自动行末加换行符，需要手动加上
     f.flush()
@@ -374,6 +386,12 @@ def FP_RATE(N, FP):
 
 
 def ROC_AUC(y, pred):
+    """
+
+    :param y:
+    :param pred:
+    :return:
+    """
     import matplotlib.pyplot as plt
     from sklearn.metrics import roc_curve
     # y = np.array([1, 1, 2, 2])
@@ -397,33 +415,41 @@ def ROC_AUC(y, pred):
     # plt.show()
 
 
-def feature_importance():
-    from sklearn.ensemble import ExtraTreesClassifier
-    data, target = loadDataSet()
-    X_train, X_test, y_train, y_test = dealdata(data, target)
-
-    forest = ExtraTreesClassifier(n_estimators=250,
-                                  random_state=0)
-    forest.fit(X_train, y_train)
-    importances = forest.feature_importances_
-    std = np.std([tree.feature_importances_ for tree in forest.estimators_],
-                 axis=0)
+def feature_importance(clf, feature_name01, X_test, y_test):
+    save_model(clf)
+    importances = clf.feature_importances_
     indices = np.argsort(importances)[::-1]
-    size = 25
+    size = len(feature_name01)
     # Print the feature ranking
-    print("Feature ranking:")
+    print(str(size) + " Feature ranking:")
 
-    for f in range(size - 1):
-        print("%d. %s: %d (%f)" % (f + 1, feature_name[f], indices[f], importances[indices[f]]))
+    for f in range(size):
+        print("%d feature name: %s <==> importances rate: (%f)" % (
+        f, feature_name01[indices[f]], importances[indices[f]]))
 
-    # Plot the feature importances of the forest
-    plt.figure()
-    plt.title("Feature importances")
-    plt.bar(range(size - 1), importances[indices],
-            color="r", yerr=std[indices], align="center")
-    plt.xticks(range(size - 1), indices)
-    plt.xlim([-1, size - 1])
-    plt.show()
+    ytestPre = clf.predict(X_test)
+    from sklearn.metrics import accuracy_score
+    accuracy = accuracy_score(y_test, ytestPre)
+    print(u'准确率： %.4f%%' % (100 * accuracy))
+    from sklearn import metrics
+    precision = metrics.precision_score(y_test, ytestPre, average='micro')  # 微平均，精确率
+    print(u'微平均，精确率： %.4f%%' % (100 * precision))
+    recall = metrics.recall_score(y_test, ytestPre, average='macro')
+    print(u'微平均，召回率： %.4f%%' % (100 * recall))
+    f1_score = metrics.f1_score(y_test, ytestPre, average='weighted')
+    print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
+    from sklearn.metrics import classification_report
+    target_names = ['label is 0', 'label is 1']
+    print(classification_report(y_test, ytestPre, target_names=target_names))
+    from sklearn.metrics import cohen_kappa_score
+    kappa_score = cohen_kappa_score(y_test, ytestPre)
+    print(u'kappa score是一个介于(-1, 1)之间的数. score>0.8意味着好的分类；0或更低意味着不好（实际是随机标签）： %.4f%%' % (100 * kappa_score))
+    pre_result = clf.predict_proba(X_test)
+    ROC_AUC(y_test, pre_result)
+    # dtp = DecisionTreeClassifierParser(clf, feature_name01)
+    # res = dtp.get_parsed_tree()
+    # write_json("/home/sinly/ljtstudy/code/risk_rules/sklearn_result01/bankrupt_risk_rule.json", res)
+    # print (json.dumps(res, ensure_ascii=False, indent=4))
 
 
 def string_to_float(data):
@@ -452,18 +478,54 @@ def is_rmb(x):
         return 0
 
 
-def dx_train():
+def write_txt(path, data):
+    '''
+     保存清洗数据
+    '''
+    f = open(path, 'w')
+    f.write(data.decode('unicode_escape'))
+    f.write('\n')  # write不会在自动行末加换行符，需要手动加上
+    f.flush()
+    f.close()
+
+
+def write_json(path, data):
+    '''
+     保存清洗数据
+    '''
+    import traceback
+    try:
+        with open(path, "w") as outfile:
+            json.dump(data, outfile, indent=4)
+    except Exception as e:
+        traceback.print_exc()
+
+
+def save_model(dx_tree):
+    from sklearn.externals import joblib
+    joblib.dump(dx_tree, 'bankrupt_tree.model')
+
+
+def bankrupt_train():
+    """
+
+    :return:
+    """
     df = pd.read_csv(file_path)
     # 正常
-    df_p = df[df['_c1'] == 1].head(int(389081 * 1.5))
+    df_normal = df[df['_c1'] == 1].sample(n=4871)
+    df_normal['is_bankrupt'] = 1
     # 吊销
-    df_n = df[df['_c1'] == 2].head(389081)
-    frames = [df_p, df_n]
+    # df_n = df[df['_c1'] == 2].head(389081)
+    # 破产
+    df_n = df[df['_c0'].map(lambda x: x in bankrupt_company_list01)]
+    df_n['is_bankrupt'] = 0
+    frames = [df_normal, df_n]
     df = pd.concat(frames)
+    del df_normal
+    del df_n
     df = df.fillna(0)
-    # df = df.fillna(df.mean())
-    # df = pd.to_numeric(df, errors='coerce')
-    target = df['_c1'].as_matrix()
+    target = df['is_bankrupt'].as_matrix()
     target = pd.to_numeric(target, errors='coerce')
     # data = pd.DataFrame()
     feature_name01 = feature_name[1:]
@@ -483,10 +545,25 @@ def dx_train():
     X_train, X_test, y_train, y_test = dealdata(data, target)
     # from sklearn.ensemble import ExtraTreesClassifier
     # 决策树
-    clf = tree.DecisionTreeClassifier(max_depth=79, splitter="best",
-                                      max_features=52, min_samples_split=79,
-                                      max_leaf_nodes=1000)
-    clf = clf.fit(X_train, y_train)
+    # clf = tree.DecisionTreeClassifier(max_depth=77, splitter="best",
+    #                                   max_features=77, min_samples_split=77,
+    #                                   max_leaf_nodes=1000)
+    # clf = clf.fit(X_train, y_train)
+    # xgboost
+    import xgboost as xgb
+    clf = xgb.XGBClassifier(learning_rate=0.1,
+                            n_estimators=30,
+                            max_depth=43,
+                            min_child_weight=1,
+                            gamma=0.15,
+                            subsample=0.8,
+                            colsample_bytree=0.8,
+                            nthread=4,
+                            scale_pos_weight=1,
+                            seed=27)
+    clf.fit(X_train, y_train, early_stopping_rounds=100, eval_metric="auc",
+            eval_set=[(X_test, y_test)])
+    save_model(clf)
     importances = clf.feature_importances_
     indices = np.argsort(importances)[::-1]
     size = len(feature_name01)
@@ -494,7 +571,8 @@ def dx_train():
     print(str(size) + " Feature ranking:")
 
     for f in range(size):
-        print("%d feature name: %s <==> importances rate: (%f)" % (f, feature_name01[indices[f]], importances[indices[f]]))
+        print("%d feature name: %s <==> importances rate: (%f)" % (
+        f, feature_name01[indices[f]], importances[indices[f]]))
 
     ytestPre = clf.predict(X_test)
     from sklearn.metrics import accuracy_score
@@ -508,16 +586,312 @@ def dx_train():
     f1_score = metrics.f1_score(y_test, ytestPre, average='weighted')
     print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
     from sklearn.metrics import classification_report
-    target_names = ['label is 1', 'label is 2']
+    target_names = ['label is 0', 'label is 1']
     print(classification_report(y_test, ytestPre, target_names=target_names))
     from sklearn.metrics import cohen_kappa_score
     kappa_score = cohen_kappa_score(y_test, ytestPre)
     print(u'kappa score是一个介于(-1, 1)之间的数. score>0.8意味着好的分类；0或更低意味着不好（实际是随机标签）： %.4f%%' % (100 * kappa_score))
     pre_result = clf.predict_proba(X_test)
     ROC_AUC(y_test, pre_result)
-    dtp = DecisionTreeClassifierParser(clf, feature_name01)
-    res = dtp.get_parsed_tree()
-    print (json.dumps(res, ensure_ascii=False, indent=2))
+    # dtp = DecisionTreeClassifierParser(clf, feature_name01)
+    # res = dtp.get_parsed_tree()
+    # write_json("/home/sinly/ljtstudy/code/risk_rules/sklearn_result01/bankrupt_risk_rule.json", res)
+    # print (json.dumps(res, ensure_ascii=False, indent=4))
+
+
+def validate_model(clf, data):
+    """
+
+    :param clf:
+    :param data:
+    :return:
+    """
+    global bankrupt_company_list01
+    bankrupt_company_list01_list = []
+    company_list = data["_c0"].tolist()
+    df = data
+    df1 = df[feature_name].apply(lambda x: string_list_to_float(x))
+    df[feature_name] = df1
+    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
+    df = df.fillna(0)
+    for company in company_list:
+        feature = df[df["_c0"] == company][feature_name]
+        clf.predict(feature)
+        mode_predict_proba = clf.predict_proba(feature[feature_name].as_matrix())[0]
+        # mode_predict = clf.predict(feature[feature_name].as_matrix())[0]
+        if mode_predict_proba[0] > 0.6:
+            # companys = get_bankrupt_company_list01_name(company)
+            bankrupt_company_list01_list.append(company)
+            # time.sleep(200)
+        else:
+            continue
+    bankrupt_company_list01_list = list(set(bankrupt_company_list01_list))
+    bankrupt_company_list01.extend(bankrupt_company_list01_list)
+    bankrupt_company_list01 = list(set(bankrupt_company_list01))
+    print(bankrupt_company_list01.__len__())
+    print (json.dumps(bankrupt_company_list01, ensure_ascii=False, indent=4))
+    f1 = open('/home/sinly/ljtstudy/code/ML_work/src/pysaprk_demo/data/bankrupt_company.txt', 'w')
+
+    for company in bankrupt_company_list01:
+        company = company+"\n"
+        f1.write(company)
+
+    f1.flush()
+    f1.close()
+    # bankrupt_train_lightgbm()
+
+
+
+def bankrupt_train_lightgbm():
+    """
+
+    :return:
+    """
+    df = pd.read_csv(file_path)
+    # 正常
+    df_normal = df[df['_c0'].map(lambda x: x not in bankrupt_company_list01)]
+    df_normal =df_normal.sample(n=int(6700))
+    df_vail =df_normal.sample(n=int(6700))
+    df_normal['is_bankrupt'] = 1
+    # 吊销
+    # df_n = df[df['_c1'] == 2].head(389081)
+    # 破产
+    df_n = df[df['_c0'].map(lambda x: x in bankrupt_company_list01)]
+    df_n['is_bankrupt'] = 0
+    frames = [df_normal, df_n]
+    df = pd.concat(frames)
+    del df_normal
+    del df_n
+    df = df.fillna(0)
+    target = df['is_bankrupt'].as_matrix()
+    target = pd.to_numeric(target, errors='coerce')
+    # data = pd.DataFrame()
+    feature_name01 = feature_name
+    df = df[feature_name01].apply(lambda x: string_list_to_float(x))
+    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
+    # zczjbz = set(df['zczjbz'].tolist())
+    # print("zczjbz"+str(zczjbz))
+    data = df.as_matrix()
+    del df
+    # for item in feature_name01:
+    #     data[item] = df[item].apply(lambda x: string_to_float(x))
+    # data = data.as_matrix()
+    # [rows, cols] = data.shape
+    # data = [[string_to_float(row[col]) for row in data] for col in range(rows - 1)]
+    # data = np.array(data)
+    # data = df[feature_name[1:]].astype(float, errors='ignore').as_matrix()
+    X_train, X_test, y_train, y_test = dealdata(data, target)
+    # from sklearn.ensemble import ExtraTreesClassifier
+    # 决策树
+    # clf = tree.DecisionTreeClassifier(max_depth=77, splitter="best",
+    #                                   max_features=77, min_samples_split=77,
+    #                                   max_leaf_nodes=1000)
+    # clf = clf.fit(X_train, y_train)
+    # lightgbm
+    import lightgbm
+    # clf = lightgbm.LGBMClassifier(boosting_type='gbdt', #
+    #                               num_leaves=20,#决策树的叶子节点
+    #                               objective='binary',#目标为二分类
+    #                               max_depth=6,
+    #                               learning_rate=0.2,
+    #                               n_estimators=1000,
+    #                               metric="auc",
+    #                               reg_alpha=0.1,#
+    #                               subsample=0.9 #样本子集比例
+    #                               )
+    clf = lightgbm.LGBMClassifier(boosting_type='gbdt',
+                                  colsample_bytree=1.0,
+                                  learning_rate=0.2,
+                                  num_leaves=10,  # 决策树的叶子节点
+                                  max_depth=48,
+                                  min_child_samples=8,
+                                  min_child_weight=0.001,
+                                  min_split_gain=0.0,
+                                  n_estimators=80,
+                                  n_jobs=-1,
+                                  objective='binary',  #目标为二分类,
+                                  reg_alpha=0.1,
+                                  reg_lambda=0.0,
+                                  silent=True,
+                                  subsample=1.0,
+                                  subsample_for_bin=200000,
+                                  subsample_freq=1)
+
+    clf.fit(X_train, y_train, early_stopping_rounds=10000, eval_metric="auc",
+            eval_set=[(X_test, y_test)])
+    save_model(clf)
+    feature_importance(clf, feature_name01, X_test, y_test)
+    validate_model(clf, df_vail)
+    # print('###############################参数网格优选###################################')
+    # model_gbr_GridSearch = lightgbm.LGBMClassifier()
+    # # 设置参数池  参考 http://www.cnblogs.com/DjangoBlog/p/6201663.html
+    # param_grid = {'n_estimators': range(30, 81, 10),
+    #               'learning_rate': [0.2, 0.1, 0.05, 0.02, 0.01],
+    #               'max_depth': [20, 50, 70],
+    #               'num_leaves': [6, 8, 10],
+    #               'reg_alpha': [0.1, 0.001, 0.005, 0.01, 0.05]
+    #               }
+    # # 网格调参
+    # from sklearn.model_selection import GridSearchCV
+    # estimator = GridSearchCV(model_gbr_GridSearch, param_grid)
+    # estimator.fit(X_train, y_train.ravel())
+    # print("best_estimator_:=>"+str(estimator.best_estimator_))
+    # print("best param:=>"+str(estimator.best_params_))
+    # print("best_index_:=>"+str(estimator.best_index_))
+    # print("best_score_:=>"+str(estimator.best_score_))
+
+    # dtp = DecisionTreeClassifierParser(clf, feature_name01)
+    # res = dtp.get_parsed_tree()
+    # write_json("/home/sinly/ljtstudy/code/risk_rules/sklearn_result01/bankrupt_risk_rule.json", res)
+    # print (json.dumps(res, ensure_ascii=False, indent=4))
+
+
+def feature_show(bst):
+    """
+
+    :param bst:
+    :return:
+    """
+    import operator
+    importance = bst.get_fscore()
+    # importance = sorted(zip(), key=operator.itemgetter(1))
+    importance = sorted(zip(feature_name[1:], importance.items()), key=lambda _: _[1][1], reverse=True)
+    print (json.dumps(importance, ensure_ascii=False, indent=4))
+
+
+def bankrupt_train_xgb():
+    """
+
+    :return:
+    """
+    df = pd.read_csv(file_path)
+    # 正常
+    df_normal = df[df['_c1'] == 1].sample(n=4871)
+    df_normal['is_bankrupt'] = 1
+    # 吊销
+    # df_n = df[df['_c1'] == 2].head(389081)
+    # 破产
+    df_n = df[df['_c0'].map(lambda x: x in bankrupt_company_list01)]
+    df_n['is_bankrupt'] = 0
+    frames = [df_normal, df_n]
+    df = pd.concat(frames)
+    del df_normal
+    del df_n
+    df = df.fillna(0)
+    target = df['is_bankrupt'].as_matrix()
+    target = pd.to_numeric(target, errors='coerce')
+    # data = pd.DataFrame()
+    feature_name01 = feature_name[1:]
+    df = df[feature_name01].apply(lambda x: string_list_to_float(x))
+    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
+    # zczjbz = set(df['zczjbz'].tolist())
+    # print("zczjbz"+str(zczjbz))
+    data = df.as_matrix()
+    del df
+    # for item in feature_name01:
+    #     data[item] = df[item].apply(lambda x: string_to_float(x))
+    # data = data.as_matrix()
+    # [rows, cols] = data.shape
+    # data = [[string_to_float(row[col]) for row in data] for col in range(rows - 1)]
+    # data = np.array(data)
+    # data = df[feature_name[1:]].astype(float, errors='ignore').as_matrix()
+    X_train, X_test, y_train, y_test = dealdata(data, target)
+    # from sklearn.ensemble import ExtraTreesClassifier
+    # 决策树
+    # clf = tree.DecisionTreeClassifier(max_depth=77, splitter="best",
+    #                                   max_features=77, min_samples_split=77,
+    #                                   max_leaf_nodes=1000)
+    # clf = clf.fit(X_train, y_train)
+    # xgboost
+    import xgboost as xgb
+    # clf = xgb.XGBClassifier(learning_rate=0.1,
+    #                         n_estimators=30,
+    #                         max_depth=43,
+    #                         min_child_weight=1,
+    #                         gamma=0.15,
+    #                         subsample=0.8,
+    #                         colsample_bytree=0.8,
+    #                         nthread=4,
+    #                         scale_pos_weight=1,
+    #                         seed=27)
+    # clf.fit(X_train, y_train, early_stopping_rounds=100, eval_metric="auc",
+    #         eval_set=[(X_test, y_test)])
+    # xgb02
+
+    # params = {
+    #     "objective": 'reg:linear',
+    #     "eval_metric": 'rmse',
+    #     "seed": 27,
+    #     "booster": "gbtree",
+    #     "min_child_weight": 6,
+    #     "gamma": 0.1,
+    #     "max_depth": 5,
+    #     "eta": 0.009,
+    #     "silent": 1,
+    #     "subsample": 0.65,
+    #     "colsample_bytree": 0.35,
+    #     "scale_pos_weight": 0.9
+    # }
+    # df_train = xgb.DMatrix(X_train, y_train)
+    # clf = xgb.train(params, df_train, num_boost_round=10000)
+
+    params = {
+        'booster': 'gbtree',
+        'objective': 'binary:logistic',
+        'eta': 0.1,
+        'max_depth': 40,
+        'subsample': 0.8,
+        'min_child_weight': 1,
+        'colsample_bytree': 0.2,
+        'scale_pos_weight': 0.1,
+        'eval_metric': 'auc',
+        'gamma': 0.2,
+        'seed': 27,
+        'lambda': 300
+    }
+
+    # watchlist = [(X_train, 'train'), (y_train, 'val')]
+    # clf = xgb.train(params, X_train, num_boost_round=100000, evals=watchlist)
+
+    df_train = xgb.DMatrix(X_train, y_train)
+    clf = xgb.train(params, df_train, num_boost_round=10000)
+
+    save_model(clf)
+
+    # importances = clf.feature_importances_
+    # indices = np.argsort(importances)[::-1]
+    # size = len(feature_name01)
+    # # Print the feature ranking
+    # print(str(size) + " Feature ranking:")
+    #
+    # for f in range(size):
+    #     print("%d feature name: %s <==> importances rate: (%f)" % (f, feature_name01[indices[f]], importances[indices[f]]))
+
+    feature_show(bst=clf)
+    X_test = xgb.DMatrix(X_test)
+    ytestPre = clf.predict(X_test)
+    from sklearn.metrics import accuracy_score
+    accuracy = accuracy_score(y_test, ytestPre)
+    print(u'准确率： %.4f%%' % (100 * accuracy))
+    from sklearn import metrics
+    precision = metrics.precision_score(y_test, ytestPre, average='micro')  # 微平均，精确率
+    print(u'微平均，精确率： %.4f%%' % (100 * precision))
+    recall = metrics.recall_score(y_test, ytestPre, average='macro')
+    print(u'微平均，召回率： %.4f%%' % (100 * recall))
+    f1_score = metrics.f1_score(y_test, ytestPre, average='weighted')
+    print(u'微平均，调和平均数： %.4f%%' % (100 * f1_score))
+    from sklearn.metrics import classification_report
+    target_names = ['label is 0', 'label is 1']
+    print(classification_report(y_test, ytestPre, target_names=target_names))
+    from sklearn.metrics import cohen_kappa_score
+    kappa_score = cohen_kappa_score(y_test, ytestPre)
+    print(u'kappa score是一个介于(-1, 1)之间的数. score>0.8意味着好的分类；0或更低意味着不好（实际是随机标签）： %.4f%%' % (100 * kappa_score))
+    pre_result = clf.predict_proba(X_test)
+    ROC_AUC(y_test, pre_result)
+    # dtp = DecisionTreeClassifierParser(clf, feature_name01)
+    # res = dtp.get_parsed_tree()
+    # write_json("/home/sinly/ljtstudy/code/risk_rules/sklearn_result01/bankrupt_risk_rule.json", res)
+    # print (json.dumps(res, ensure_ascii=False, indent=4))
 
 
 def evaluate_function(clf, X_test, y_test):
@@ -943,7 +1317,10 @@ def lightgbm_train():
 if __name__ == '__main__':
     # test03()
 
-    dx_train()
+    # bankrupt_train()
+    # bankrupt_train_xgb()
+    bankrupt_train_lightgbm()
+
     # dx_train2()
     # sklearn_single_classficatopn_test()
     # print ("AdaBoost:")
