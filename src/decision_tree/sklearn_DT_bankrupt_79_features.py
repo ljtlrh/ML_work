@@ -5,12 +5,140 @@ Created on  : 20180208
 决策树：
 '''
 import json
+import traceback
 
 import numpy as np
 import pandas as pd
 from sklearn import tree
 
+code = {
+    '_c1': u'是否吊销',
+    'shixin_is_no': u'是否失信',
+    'network_share_shixin_cnt': u'网络图股东或者对外投资企业的失信次数',
+        'network_share_zhixing_cnt': u'网络图股东或者对外投资企业的执行次数',
+        'network_share_sszc_cnt': u'网络图股东或者对外投资企业司法拍卖',
+        'network_share_punish_cnt': u'网络图股东或者对外投资企业行政处罚',
+        'network_share_judge_doc_cnt': u'网络图股东或者对外投资企业作为被告的裁判文书次数',
+        'network_share_cancel_cnt': u'网络图股东或者对外投资企业有吊销企业的数量',
+        'judgedoc_is_no': u'裁判文书与否',
+        'judgedoc_cnt': u'裁判文书次数',
+        'litigant_defendant_cnt': u'裁判文书被告次数',
+        'near_3_year_judgedoc_cnt': u'近3年裁判文书次数',
+        'near_2_year_judgedoc_cnt': u'近2年裁判文书次数',
+        'near_1_year_judgedoc_cnt': u'近1年裁判文书次数',
+        'litigant_defendant_contract_dispute_cnt': u'裁判文书被告合同纠纷次数',
+        'litigant_defendant_bust_cnt': u'裁判文书被告与破产有关纠纷次数',
+        'litigant_defendant_infringe_cnt': u'裁判文书被告侵权责任纠纷次数',
+        'litigant_defendant_Intellectual_property_owner_cnt': u'裁判文书被告知识产权权属、侵权纠纷次数',
+        'litigant_defendant_unjust_enrich_cnt': u'裁判文书被告不当得利纠纷次数',
+        'litigant_result_sum_money': u'裁判文书被告案件判决总金额',
+        'net_judgedoc_defendant_cnt': u'关联公司裁判文书被告次数',
+        'the_last_shi_xin_label': u'失信与否',
+        'shixin_cnt': u'失信次数',
+        'near_3_year_shixin_cnt': u'近3年内失信次数',
+        'near_2_year_shixin_cnt': u'近2年内失信次数',
+        'near_1_year_shixin_cnt': u'近1年内失信次数',
+        'court_announce_is_no': u'开庭公告与否',
+        'court_announce_cnt': u'开庭公告次数',
+        'court_announce_litigant_cnt': u'开庭公告被告次数',
+        'court_notice_is_no': u'法院公告与否',
+        'court_notice_cnt': u'法院公告次数',
+        'court_notice_litigant_cnt': u'法院公告被告次数',
+        'industry_13': u'棉、麻、糖、烟草种植',
+        'industry_26': u'化学原料和化学制品制造业',
+        'industry_519': u'其他批发业',
+        'industry_18': u'纺织服装、服饰业',
+        'industry_1810': u'机织服装制造',
+        'industry_62': u'褐煤开采洗选',
+        'industry': u'行业',
+        'industry_dx_rate': u'行业企业吊销率',
+        'industry_dx_cnt': u'行业企业吊销数量',
+        'industry_all_cnt': u'行业企业数量',
+        'province': u'省份',
+        'regcap': u'注册资本（量级万）',
+        'zczjbz': u'注册资本币种',
+        'established_years': u'成立年限',
+        'fr_change_cnt': u'法人变更次数',
+        'address_change_cnt': u'地址变更次数',
+        'regcap_change_cnt': u'注册资本变更次数',
+        'share_change_cnt': u'股东变更次数',
+        'network_fr_share_change_cnt': u'网络图法人对外投资或者任职的公司股权变更次数',
+        'hy_shixin_cnt': u'网络图法人对外投资或者任职的公司失信次数',
+        'zhixing_cnt': u'网络图法人对外投资或者任职的公司执行次数',
+        'sszc_cnt': u'网络图法人对外投资或者任职的公司司法拍卖',
+        'punish_cnt': u'网络图法人对外投资或者任职的公司行政处罚',
+        'judge_doc_cnt': u'网络图法人对外投资或者任职的公司作为被告的裁判文书次数',
+        'cancel_cnt': u'网络图法人对外投资或者任职的公司有吊销企业的数量',
+        'bidding_cnt': u'(3年内)招投标次数',
+        'bidding_three_year_rate': u'(3年内)平均每年招投标次数',
+        'is_black_list': u'是否黑名单',
+        'is_escape': u'是否跑路',
+        'is_diff_raise_money': u'是否提现困难',
+        'is_stop_busi': u'是否停止营业',
+        'is_lost_with_money': u'是否失联跑路',
+        'is_just_lost': u'是否平台失联',
+        'invent_publish_cnt': u'(3年内)发明公布数量',
+        'invent_patent_cnt': u'(3年内)发明专利数量',
+        'utility_publish_cnt': u'(3年内)实用新型数量',
+        'invent_publish_three_year_rate': u'(3年内)平均每年拥有的发明公布数量',
+        'invent_patent_three_year_rate': u'(3年内)平均每年拥有的发明专利数量',
+        'utility_publish_three_year_rate': u'（3年内）平均每年拥有的实用新型数量',
+        'warn_cnt': u'（3年内）警告次数',
+        'fine_cnt': u'（3年内）罚款次数',
+        'revoking_cnt': u'（3年内）吊销营业执照次数',
+        'warn_cnt_three_year_rate': u'（3年内）平均警告次数',
+        'fine_cnt_three_year_rate': u'（3年内）平均罚款次数',
+        'revoking_cnt_three_year_rate': u'（3年内）平均吊销营业执照次数',
+        'estate_auction_cnt': u'（3年内）动产拍卖次数',
+        'real_estate_auction_cnt': u'（3年内）不动产拍卖次数',
+        'trade_mark_cnt': u'商标注册数量',
+        'trademark_three_year_rate': u'（3年内）平均每年注册的商标数量',
+        'network_share_or_pos_shixin_cnt': u'网络图股东或者对外投资企业的失信次数'
+        }
+
+target_names = ['label is 0', 'label is 1']
+file_path = "/home/sinly/ljtstudy/back/new_version_all_features.csv"
+filepath2 = "data_dx2_zc03.txt"
+feature_name = ["_c1", "network_share_shixin_cnt", "network_share_zhixing_cnt", "network_share_sszc_cnt",
+                "network_share_punish_cnt",
+                "network_share_judge_doc_cnt", "network_share_cancel_cnt", "judgedoc_is_no", "judgedoc_cnt",
+                "litigant_defendant_cnt",
+                "near_3_year_judgedoc_cnt", "near_2_year_judgedoc_cnt", "near_1_year_judgedoc_cnt",
+                "litigant_defendant_contract_dispute_cnt", "litigant_defendant_bust_cnt",
+                "litigant_defendant_infringe_cnt", "litigant_defendant_Intellectual_property_owner_cnt",
+                "litigant_defendant_unjust_enrich_cnt", "litigant_result_sum_money",
+                "net_judgedoc_defendant_cnt", "shixin_is_no", "shixin_cnt", "near_3_year_shixin_cnt",
+                "near_2_year_shixin_cnt", "near_1_year_shixin_cnt", "court_announce_is_no",
+                "court_announce_cnt", "court_announce_litigant_cnt", "court_notice_is_no", "court_notice_cnt",
+                "court_notice_litigant_cnt", "regcap",
+                "zczjbz", "established_years", "fr_change_cnt", "address_change_cnt", "regcap_change_cnt",
+                "share_change_cnt", "network_fr_share_change_cnt", "hy_shixin_cnt", "zhixing_cnt",
+                "sszc_cnt", "punish_cnt", "judge_doc_cnt", "cancel_cnt", "bidding_cnt", "bidding_three_year_rate",
+                "is_black_list", "is_escape", "is_diff_raise_money", "is_stop_busi", "is_lost_with_money",
+                "is_just_lost", "invent_publish_cnt", "invent_patent_cnt", "utility_publish_cnt",
+                "invent_publish_three_year_rate", "invent_patent_three_year_rate", "utility_publish_three_year_rate",
+                "warn_cnt", "fine_cnt", "revoking_cnt", "warn_cnt_three_year_rate", "fine_cnt_three_year_rate",
+                "revoking_cnt_three_year_rate", "estate_auction_cnt", "real_estate_auction_cnt", "trade_mark_cnt",
+                "trademark_three_year_rate", "industry_13", "industry_26", "industry_519", "industry_18",
+                "industry_1810", "industry_62", "industry_dx_rate", "industry_dx_cnt", "industry_all_cnt"]
+
+
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","near_1_year_judgedoc_cnt","court_notice_is_no","network_share_cancel_cnt","cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","network_share_judge_doc_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","utility_publish_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","network_share_sszc_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","near_1_year_shixin_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt","near_2_year_shixin_cnt"]
+
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","near_1_year_judgedoc_cnt","court_notice_is_no","network_share_cancel_cnt","cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","network_share_judge_doc_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","utility_publish_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt",]
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","court_notice_is_no","network_share_cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","network_share_judge_doc_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt",]
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","court_notice_is_no","network_share_cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","network_share_judge_doc_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt",]
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","fr_change_cnt","share_change_cnt","judgedoc_cnt","zhixing_cnt","trade_mark_cnt","address_change_cnt","network_share_zhixing_cnt","shixin_cnt","_c1","litigant_defendant_contract_dispute_cnt","court_notice_is_no","network_share_judge_doc_cnt","litigant_result_sum_money","litigant_defendant_bust_cnt","zczjbz"]
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","fr_change_cnt","share_change_cnt","judgedoc_cnt","zhixing_cnt","trade_mark_cnt","address_change_cnt","network_share_zhixing_cnt","shixin_cnt","_c1","litigant_defendant_contract_dispute_cnt","court_notice_is_no","network_share_judge_doc_cnt","litigant_result_sum_money","litigant_defendant_bust_cnt","zczjbz"]
+# feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","fr_change_cnt","share_change_cnt","judgedoc_cnt","zhixing_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","shixin_cnt","judge_doc_cnt","_c1","litigant_defendant_contract_dispute_cnt","litigant_defendant_bust_cnt"]
+
+
 def get_company_names01(path):
+    """
+    读取txt文本
+    :param path:
+    :return:
+    """
     company_names = []
     with open(path) as f:
         for data in f.readlines():
@@ -21,8 +149,11 @@ def get_company_names01(path):
             company_names.append(name.strip("\n"))
     return company_names
 
+
 bankrupt_company_list01 = get_company_names01(
-    "/home/sinly/ljtstudy/code/ML_work/src/pysaprk_demo/data/bankrupt_company.txt")
+    "/home/sinly/ljtstudy/code/ML_work/src/pysaprk_demo/data/bankrupt_company_ok.txt")
+
+
 class DecisionTreeClassifierParser(object):
     '''
 	对决策树进行解析
@@ -137,33 +268,6 @@ class DecisionTreeClassifierParser(object):
         return res
 
 
-target_names = ['label is 1', 'label is 2']
-file_path = "/home/sinly/ljtstudy/back/new_version_all_features.csv"
-filepath2 = "data_dx2_zc03.txt"
-feature_name = ["_c1", "network_share_shixin_cnt", "network_share_zhixing_cnt", "network_share_sszc_cnt",
-                "network_share_punish_cnt",
-                "network_share_judge_doc_cnt", "network_share_cancel_cnt", "judgedoc_is_no", "judgedoc_cnt",
-                "litigant_defendant_cnt",
-                "near_3_year_judgedoc_cnt", "near_2_year_judgedoc_cnt", "near_1_year_judgedoc_cnt",
-                "litigant_defendant_contract_dispute_cnt", "litigant_defendant_bust_cnt",
-                "litigant_defendant_infringe_cnt", "litigant_defendant_Intellectual_property_owner_cnt",
-                "litigant_defendant_unjust_enrich_cnt", "litigant_result_sum_money",
-                "net_judgedoc_defendant_cnt", "shixin_is_no", "shixin_cnt", "near_3_year_shixin_cnt",
-                "near_2_year_shixin_cnt", "near_1_year_shixin_cnt", "court_announce_is_no",
-                "court_announce_cnt", "court_announce_litigant_cnt", "court_notice_is_no", "court_notice_cnt",
-                "court_notice_litigant_cnt", "regcap",
-                "zczjbz", "established_years", "fr_change_cnt", "address_change_cnt", "regcap_change_cnt",
-                "share_change_cnt", "network_fr_share_change_cnt", "hy_shixin_cnt", "zhixing_cnt",
-                "sszc_cnt", "punish_cnt", "judge_doc_cnt", "cancel_cnt", "bidding_cnt", "bidding_three_year_rate",
-                "is_black_list", "is_escape", "is_diff_raise_money", "is_stop_busi", "is_lost_with_money",
-                "is_just_lost", "invent_publish_cnt", "invent_patent_cnt", "utility_publish_cnt",
-                "invent_publish_three_year_rate", "invent_patent_three_year_rate", "utility_publish_three_year_rate",
-                "warn_cnt", "fine_cnt", "revoking_cnt", "warn_cnt_three_year_rate", "fine_cnt_three_year_rate",
-                "revoking_cnt_three_year_rate", "estate_auction_cnt", "real_estate_auction_cnt", "trade_mark_cnt",
-                "trademark_three_year_rate", "industry_13", "industry_26", "industry_519", "industry_18",
-                "industry_1810", "industry_62", "industry_dx_rate", "industry_dx_cnt", "industry_all_cnt"]
-
-feature_name = ["regcap",  "established_years",  "industry_dx_rate",  "industry_all_cnt",  "industry_dx_cnt",  "net_judgedoc_defendant_cnt",  "fr_change_cnt",  "share_change_cnt",  "network_share_judge_doc_cnt",  "regcap_change_cnt", "court_notice_is_no", "judgedoc_cnt", "address_change_cnt", "network_share_zhixing_cnt", "trade_mark_cnt", "cancel_cnt", "network_share_cancel_cnt", "litigant_result_sum_money", "litigant_defendant_bust_cnt", "zhixing_cnt", "judge_doc_cnt", "zczjbz", "near_3_year_judgedoc_cnt", "court_announce_litigant_cnt", "bidding_cnt", "litigant_defendant_contract_dispute_cnt", "network_share_shixin_cnt", "near_2_year_judgedoc_cnt",  "litigant_defendant_unjust_enrich_cnt",  "near_3_year_shixin_cnt",  "hy_shixin_cnt",  "network_share_sszc_cnt",  "estate_auction_cnt",  "shixin_is_no",  "invent_patent_cnt",  "litigant_defendant_infringe_cnt",  "utility_publish_cnt",  "shixin_cnt",  "near_1_year_judgedoc_cnt",  "near_1_year_shixin_cnt",  "court_notice_cnt",  "court_notice_litigant_cnt",    "court_announce_is_no",  "fine_cnt",  "court_announce_cnt",  "sszc_cnt",  "near_2_year_shixin_cnt",  "invent_publish_cnt",  "real_estate_auction_cnt"]
 
 def isNone(d):
     from operator import eq as cmp
@@ -424,8 +528,8 @@ def feature_importance(clf, feature_name01, X_test, y_test):
     print(str(size) + " Feature ranking:")
 
     for f in range(size):
-        print("%d feature name: %s <==> importances rate: (%f)" % (
-        f, feature_name01[indices[f]], importances[indices[f]]))
+        print("%d  %s : %s <==> importances rate: (%f)" % (
+            f, code[feature_name01[indices[f]]], feature_name01[indices[f]], importances[indices[f]]))
 
     ytestPre = clf.predict(X_test)
     from sklearn.metrics import accuracy_score
@@ -506,73 +610,42 @@ def save_model(dx_tree):
     joblib.dump(dx_tree, 'bankrupt_tree.model')
 
 
-def bankrupt_train():
+def bankrupt_train(X_train, X_test, y_train, y_test):
     """
 
     :return:
     """
-    df = pd.read_csv(file_path)
-    # 正常
-    df_normal = df[df['_c1'] == 1].sample(n=4871)
-    df_normal['is_bankrupt'] = 1
-    # 吊销
-    # df_n = df[df['_c1'] == 2].head(389081)
-    # 破产
-    df_n = df[df['_c0'].map(lambda x: x in bankrupt_company_list01)]
-    df_n['is_bankrupt'] = 0
-    frames = [df_normal, df_n]
-    df = pd.concat(frames)
-    del df_normal
-    del df_n
-    df = df.fillna(0)
-    target = df['is_bankrupt'].as_matrix()
-    target = pd.to_numeric(target, errors='coerce')
-    # data = pd.DataFrame()
-    feature_name01 = feature_name[1:]
-    df = df[feature_name01].apply(lambda x: string_list_to_float(x))
-    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
-    # zczjbz = set(df['zczjbz'].tolist())
-    # print("zczjbz"+str(zczjbz))
-    data = df.as_matrix()
-    del df
-    # for item in feature_name01:
-    #     data[item] = df[item].apply(lambda x: string_to_float(x))
-    # data = data.as_matrix()
-    # [rows, cols] = data.shape
-    # data = [[string_to_float(row[col]) for row in data] for col in range(rows - 1)]
-    # data = np.array(data)
-    # data = df[feature_name[1:]].astype(float, errors='ignore').as_matrix()
-    X_train, X_test, y_train, y_test = dealdata(data, target)
+
     # from sklearn.ensemble import ExtraTreesClassifier
     # 决策树
-    # clf = tree.DecisionTreeClassifier(max_depth=77, splitter="best",
-    #                                   max_features=77, min_samples_split=77,
-    #                                   max_leaf_nodes=1000)
-    # clf = clf.fit(X_train, y_train)
+    clf = tree.DecisionTreeClassifier(max_depth=40, splitter="best",
+                                      max_features=40, min_samples_split=40,
+                                      max_leaf_nodes=1000)
+    clf = clf.fit(X_train, y_train)
     # xgboost
-    import xgboost as xgb
-    clf = xgb.XGBClassifier(learning_rate=0.1,
-                            n_estimators=30,
-                            max_depth=43,
-                            min_child_weight=1,
-                            gamma=0.15,
-                            subsample=0.8,
-                            colsample_bytree=0.8,
-                            nthread=4,
-                            scale_pos_weight=1,
-                            seed=27)
-    clf.fit(X_train, y_train, early_stopping_rounds=100, eval_metric="auc",
-            eval_set=[(X_test, y_test)])
+    # import xgboost as xgb
+    # clf = xgb.XGBClassifier(learning_rate=0.1,
+    #                         n_estimators=30,
+    #                         max_depth=43,
+    #                         min_child_weight=1,
+    #                         gamma=0.15,
+    #                         subsample=0.8,
+    #                         colsample_bytree=0.8,
+    #                         nthread=4,
+    #                         scale_pos_weight=1,
+    #                         seed=27)
+    # clf.fit(X_train, y_train, early_stopping_rounds=100, eval_metric="auc",
+    #         eval_set=[(X_test, y_test)])
     save_model(clf)
     importances = clf.feature_importances_
     indices = np.argsort(importances)[::-1]
-    size = len(feature_name01)
+    size = len(feature_name)
     # Print the feature ranking
     print(str(size) + " Feature ranking:")
 
     for f in range(size):
         print("%d feature name: %s <==> importances rate: (%f)" % (
-        f, feature_name01[indices[f]], importances[indices[f]]))
+            f, feature_name[indices[f]], importances[indices[f]]))
 
     ytestPre = clf.predict(X_test)
     from sklearn.metrics import accuracy_score
@@ -606,81 +679,49 @@ def validate_model(clf, data):
     :param data:
     :return:
     """
-    global bankrupt_company_list01
-    bankrupt_company_list01_list = []
-    company_list = data["_c0"].tolist()
-    df = data
-    df1 = df[feature_name].apply(lambda x: string_list_to_float(x))
-    df[feature_name] = df1
-    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
-    df = df.fillna(0)
-    for company in company_list:
-        feature = df[df["_c0"] == company][feature_name]
-        clf.predict(feature)
-        mode_predict_proba = clf.predict_proba(feature[feature_name].as_matrix())[0]
-        # mode_predict = clf.predict(feature[feature_name].as_matrix())[0]
-        if mode_predict_proba[0] > 0.6:
-            # companys = get_bankrupt_company_list01_name(company)
-            bankrupt_company_list01_list.append(company)
-            # time.sleep(200)
-        else:
-            continue
-    bankrupt_company_list01_list = list(set(bankrupt_company_list01_list))
-    bankrupt_company_list01.extend(bankrupt_company_list01_list)
-    bankrupt_company_list01 = list(set(bankrupt_company_list01))
-    print(bankrupt_company_list01.__len__())
-    print (json.dumps(bankrupt_company_list01, ensure_ascii=False, indent=4))
-    f1 = open('/home/sinly/ljtstudy/code/ML_work/src/pysaprk_demo/data/bankrupt_company.txt', 'w')
+    try:
+        global bankrupt_company_list01
+        bankrupt_company_list01_list = []
+        company_list = data["_c0"].tolist()
+        df = data
+        df1 = df[feature_name].apply(lambda x: string_list_to_float(x))
+        df[feature_name] = df1
+        df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
+        df = df.fillna(0)
+        for company in company_list:
+            feature = df[df["_c0"] == company][feature_name]
+            # clf.predict(feature)
+            mode_predict_proba = clf.predict_proba(feature[feature_name].as_matrix())[0]
+            # mode_predict = clf.predict(feature[feature_name].as_matrix())[0]
+            if mode_predict_proba[0] > 0.8:
+                # companys = get_bankrupt_company_list01_name(company)
+                bankrupt_company_list01_list.append(company)
+                # time.sleep(200)
+            else:
+                continue
+        bankrupt_company_list01_list = list(set(bankrupt_company_list01_list))
 
-    for company in bankrupt_company_list01:
-        company = company+"\n"
-        f1.write(company)
+        print(bankrupt_company_list01_list.__len__())
+        print (json.dumps(bankrupt_company_list01_list, ensure_ascii=False, indent=4))
+        f1 = open('/home/sinly/ljtstudy/code/ML_work/src/pysaprk_demo/data/bankrupt_company.txt', 'w')
 
-    f1.flush()
-    f1.close()
+        for company in bankrupt_company_list01_list:
+            company = company + "\n"
+            f1.write(company)
+
+        f1.flush()
+        f1.close()
+    except Exception as e:
+        traceback.print_exc()
     # bankrupt_train_lightgbm()
 
 
-
-def bankrupt_train_lightgbm():
+def bankrupt_train_lightgbm(X_train, X_test, y_train, y_test, df_vail):
     """
 
     :return:
     """
-    df = pd.read_csv(file_path)
-    # 正常
-    df_normal = df[df['_c0'].map(lambda x: x not in bankrupt_company_list01)]
-    df_normal =df_normal.sample(n=int(6700))
-    df_vail =df_normal.sample(n=int(6700))
-    df_normal['is_bankrupt'] = 1
-    # 吊销
-    # df_n = df[df['_c1'] == 2].head(389081)
-    # 破产
-    df_n = df[df['_c0'].map(lambda x: x in bankrupt_company_list01)]
-    df_n['is_bankrupt'] = 0
-    frames = [df_normal, df_n]
-    df = pd.concat(frames)
-    del df_normal
-    del df_n
-    df = df.fillna(0)
-    target = df['is_bankrupt'].as_matrix()
-    target = pd.to_numeric(target, errors='coerce')
-    # data = pd.DataFrame()
-    feature_name01 = feature_name
-    df = df[feature_name01].apply(lambda x: string_list_to_float(x))
-    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
-    # zczjbz = set(df['zczjbz'].tolist())
-    # print("zczjbz"+str(zczjbz))
-    data = df.as_matrix()
-    del df
-    # for item in feature_name01:
-    #     data[item] = df[item].apply(lambda x: string_to_float(x))
-    # data = data.as_matrix()
-    # [rows, cols] = data.shape
-    # data = [[string_to_float(row[col]) for row in data] for col in range(rows - 1)]
-    # data = np.array(data)
-    # data = df[feature_name[1:]].astype(float, errors='ignore').as_matrix()
-    X_train, X_test, y_train, y_test = dealdata(data, target)
+
     # from sklearn.ensemble import ExtraTreesClassifier
     # 决策树
     # clf = tree.DecisionTreeClassifier(max_depth=77, splitter="best",
@@ -702,14 +743,14 @@ def bankrupt_train_lightgbm():
     clf = lightgbm.LGBMClassifier(boosting_type='gbdt',
                                   colsample_bytree=1.0,
                                   learning_rate=0.2,
-                                  num_leaves=10,  # 决策树的叶子节点
-                                  max_depth=48,
+                                  num_leaves=30,  # 决策树的叶子节点
+                                  max_depth=40,
                                   min_child_samples=8,
                                   min_child_weight=0.001,
                                   min_split_gain=0.0,
-                                  n_estimators=80,
+                                  n_estimators=300,
                                   n_jobs=-1,
-                                  objective='binary',  #目标为二分类,
+                                  objective='binary',  # 目标为二分类,
                                   reg_alpha=0.1,
                                   reg_lambda=0.0,
                                   silent=True,
@@ -720,8 +761,8 @@ def bankrupt_train_lightgbm():
     clf.fit(X_train, y_train, early_stopping_rounds=10000, eval_metric="auc",
             eval_set=[(X_test, y_test)])
     save_model(clf)
-    feature_importance(clf, feature_name01, X_test, y_test)
-    validate_model(clf, df_vail)
+    feature_importance(clf, feature_name, X_test, y_test)
+    # validate_model(clf, df_vail)
     # print('###############################参数网格优选###################################')
     # model_gbr_GridSearch = lightgbm.LGBMClassifier()
     # # 设置参数池  参考 http://www.cnblogs.com/DjangoBlog/p/6201663.html
@@ -759,43 +800,12 @@ def feature_show(bst):
     print (json.dumps(importance, ensure_ascii=False, indent=4))
 
 
-def bankrupt_train_xgb():
+def bankrupt_train_xgb(X_train, X_test, y_train, y_test):
     """
 
     :return:
     """
-    df = pd.read_csv(file_path)
-    # 正常
-    df_normal = df[df['_c1'] == 1].sample(n=4871)
-    df_normal['is_bankrupt'] = 1
-    # 吊销
-    # df_n = df[df['_c1'] == 2].head(389081)
-    # 破产
-    df_n = df[df['_c0'].map(lambda x: x in bankrupt_company_list01)]
-    df_n['is_bankrupt'] = 0
-    frames = [df_normal, df_n]
-    df = pd.concat(frames)
-    del df_normal
-    del df_n
-    df = df.fillna(0)
-    target = df['is_bankrupt'].as_matrix()
-    target = pd.to_numeric(target, errors='coerce')
-    # data = pd.DataFrame()
-    feature_name01 = feature_name[1:]
-    df = df[feature_name01].apply(lambda x: string_list_to_float(x))
-    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
-    # zczjbz = set(df['zczjbz'].tolist())
-    # print("zczjbz"+str(zczjbz))
-    data = df.as_matrix()
-    del df
-    # for item in feature_name01:
-    #     data[item] = df[item].apply(lambda x: string_to_float(x))
-    # data = data.as_matrix()
-    # [rows, cols] = data.shape
-    # data = [[string_to_float(row[col]) for row in data] for col in range(rows - 1)]
-    # data = np.array(data)
-    # data = df[feature_name[1:]].astype(float, errors='ignore').as_matrix()
-    X_train, X_test, y_train, y_test = dealdata(data, target)
+
     # from sklearn.ensemble import ExtraTreesClassifier
     # 决策树
     # clf = tree.DecisionTreeClassifier(max_depth=77, splitter="best",
@@ -804,18 +814,19 @@ def bankrupt_train_xgb():
     # clf = clf.fit(X_train, y_train)
     # xgboost
     import xgboost as xgb
-    # clf = xgb.XGBClassifier(learning_rate=0.1,
-    #                         n_estimators=30,
-    #                         max_depth=43,
-    #                         min_child_weight=1,
-    #                         gamma=0.15,
-    #                         subsample=0.8,
-    #                         colsample_bytree=0.8,
-    #                         nthread=4,
-    #                         scale_pos_weight=1,
-    #                         seed=27)
-    # clf.fit(X_train, y_train, early_stopping_rounds=100, eval_metric="auc",
-    #         eval_set=[(X_test, y_test)])
+    clf = xgb.XGBClassifier(booster='gbtree',
+                            learning_rate=0.1,
+                            n_estimators=800,
+                            max_depth=43,
+                            min_child_weight=1,
+                            gamma=0.15,
+                            subsample=0.8,
+                            colsample_bytree=0.8,
+                            nthread=4,
+                            scale_pos_weight=1,
+                            seed=27)
+    clf.fit(X_train, y_train, early_stopping_rounds=1000, eval_metric="auc",
+            eval_set=[(X_test, y_test)])
     # xgb02
 
     # params = {
@@ -835,40 +846,39 @@ def bankrupt_train_xgb():
     # df_train = xgb.DMatrix(X_train, y_train)
     # clf = xgb.train(params, df_train, num_boost_round=10000)
 
-    params = {
-        'booster': 'gbtree',
-        'objective': 'binary:logistic',
-        'eta': 0.1,
-        'max_depth': 40,
-        'subsample': 0.8,
-        'min_child_weight': 1,
-        'colsample_bytree': 0.2,
-        'scale_pos_weight': 0.1,
-        'eval_metric': 'auc',
-        'gamma': 0.2,
-        'seed': 27,
-        'lambda': 300
-    }
-
-    # watchlist = [(X_train, 'train'), (y_train, 'val')]
-    # clf = xgb.train(params, X_train, num_boost_round=100000, evals=watchlist)
-
-    df_train = xgb.DMatrix(X_train, y_train)
-    clf = xgb.train(params, df_train, num_boost_round=10000)
+    # params = {
+    #     'booster': 'gbtree',
+    #     'objective': 'binary:logistic',
+    #     'eta': 0.1,
+    #     'max_depth': 40,
+    #     'subsample': 0.8,
+    #     'min_child_weight': 1,
+    #     'colsample_bytree': 0.2,
+    #     'scale_pos_weight': 0.1,
+    #     'eval_metric': 'auc',
+    #     'gamma': 0.2,
+    #     'seed': 27,
+    #     'lambda': 300
+    # }
+    #
+    # # watchlist = [(X_train, 'train'), (y_train, 'val')]
+    # # clf = xgb.train(params, X_train, num_boost_round=100000, evals=watchlist)
+    #
+    # df_train = xgb.DMatrix(X_train, y_train)
+    # clf = xgb.train(params, df_train, num_boost_round=10000)
 
     save_model(clf)
 
-    # importances = clf.feature_importances_
-    # indices = np.argsort(importances)[::-1]
-    # size = len(feature_name01)
-    # # Print the feature ranking
-    # print(str(size) + " Feature ranking:")
-    #
-    # for f in range(size):
-    #     print("%d feature name: %s <==> importances rate: (%f)" % (f, feature_name01[indices[f]], importances[indices[f]]))
+    importances = clf.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    size = len(feature_name)
+    # Print the feature ranking
+    print(str(size) + " Feature ranking:")
 
-    feature_show(bst=clf)
-    X_test = xgb.DMatrix(X_test)
+    for f in range(size):
+        print("%d feature name: %s <==> importances rate: (%f)" % (
+        f, feature_name[indices[f]], importances[indices[f]]))
+
     ytestPre = clf.predict(X_test)
     from sklearn.metrics import accuracy_score
     accuracy = accuracy_score(y_test, ytestPre)
@@ -1314,12 +1324,61 @@ def lightgbm_train():
     plt.show()
 
 
+def get_data():
+    df = pd.read_csv(file_path)
+    # 正常
+    is_bankrupt_df = df['_c0'].isin([bankrupt_company_list01])
+    sampling = df[(True ^ is_bankrupt_df)]
+    df_n = df[(False ^ is_bankrupt_df)]
+    del df
+    df_normal = sampling[sampling['_c1'] == 1].sample(n=7829)
+    df_vail = sampling[sampling['_c1'] == 2].sample(n=4829)
+    # sampling =df.sample(n=int(96700*2))
+    # df_normal =sampling.sample(n=int(96700))
+    # df_vail =sampling.head(n=int(9700))
+    df_normal['is_bankrupt'] = 1
+    # 吊销
+    # df_n = df[df['_c1'] == 2].head(389081)
+    # 破产
+    # df_n = df[df['_c0'].map(lambda x: x in bankrupt_company_list01)]
+
+    df_n['is_bankrupt'] = 0
+    # df_n.insert(0, 'is_bankrupt')
+    frames = [df_normal, df_n]
+    df = pd.concat(frames)
+    del df_normal
+    del df_n
+    df = df.fillna(0)
+    target = df['is_bankrupt'].as_matrix()
+    target = pd.to_numeric(target, errors='coerce')
+    # data = pd.DataFrame()
+    feature_name01 = feature_name
+    df = df[feature_name01].apply(lambda x: string_list_to_float(x))
+    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
+    # zczjbz = set(df['zczjbz'].tolist())
+    # print("zczjbz"+str(zczjbz))
+    data = df.as_matrix()
+    del df
+    # for item in feature_name01:
+    #     data[item] = df[item].apply(lambda x: string_to_float(x))
+    # data = data.as_matrix()
+    # [rows, cols] = data.shape
+    # data = [[string_to_float(row[col]) for row in data] for col in range(rows - 1)]
+    # data = np.array(data)
+    # data = df[feature_name[1:]].astype(float, errors='ignore').as_matrix()
+    X_train, X_test, y_train, y_test = dealdata(data, target)
+    return X_train, X_test, y_train, y_test, df_vail
+
+
 if __name__ == '__main__':
     # test03()
-
-    # bankrupt_train()
-    # bankrupt_train_xgb()
-    bankrupt_train_lightgbm()
+    X_train, X_test, y_train, y_test, df_vail = get_data()
+    # print("决策树：")
+    # bankrupt_train(X_train, X_test, y_train, y_test)
+    # print("xgboost：")
+    # bankrupt_train_xgb(X_train, X_test, y_train, y_test)
+    print("lightgbm：")
+    bankrupt_train_lightgbm(X_train, X_test, y_train, y_test, df_vail)
 
     # dx_train2()
     # sklearn_single_classficatopn_test()

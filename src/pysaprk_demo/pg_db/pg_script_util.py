@@ -293,11 +293,13 @@ if __name__ == '__main__':
 
     pg = PgScriptUtil()
     not_bankrupt_list = []
-    sql_request = '''SELECT   *  FROM all_features WHERE company_name=%s'''
+    sql_request = '''SELECT   company_name  FROM all_features WHERE company_name = %s'''
     bankrupt_company = get_company_names01(
         "/home/sinly/ljtstudy/code/ML_work/src/pysaprk_demo/data/bankrupt_company.txt")
+    bankrupt_company = list(set(bankrupt_company))
     for company in bankrupt_company:
             company = company.strip("").strip("\n")
+            # company ='%'+company+'%'
             param = ((company,))
             res = pg.get_all_value(sql_request, param)
             if res.__len__() <= 0:
