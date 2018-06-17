@@ -9,7 +9,7 @@ cd G:\spark\spark-2.1.1-bin-hadoop2.7\hadoop-2.7.3\sbin
 start-all.cmd
 
 停止：
-stop-all.cmd
+start-all.cmd start-all.cmd
 
 
 查看hadoop管理页面：http://localhost:50070
