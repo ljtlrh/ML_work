@@ -12,7 +12,7 @@
 import datetime
 import tornado
 
-from ML_work.src.pysaprk_demo.monitor_hadoop.monitor_get_data import MonitorGetData
+from src.pysaprk_demo.monitor_hadoop.monitor_get_data import MonitorGetData
 
 md = MonitorGetData()
 
