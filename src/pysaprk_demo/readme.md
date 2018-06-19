@@ -39,4 +39,3 @@ Instead use the hdfs command for it.
 G:\spark\spark-2.1.1-bin-hadoop2.7\hadoop-2.7.3\bin>hadoop dfs -put G:\yan\recommend\data\ml-100k\ /train/ml-100k
 
 
-
