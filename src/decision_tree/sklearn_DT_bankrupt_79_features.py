@@ -127,9 +127,9 @@ feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cn
 
 feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","near_1_year_judgedoc_cnt","court_notice_is_no","network_share_cancel_cnt","cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","network_share_judge_doc_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","utility_publish_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt",]
 feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","court_notice_is_no","network_share_cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","network_share_judge_doc_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt",]
-feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","court_notice_is_no","network_share_cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","network_share_judge_doc_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt",]
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","judgedoc_cnt","fr_change_cnt","share_change_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","bidding_cnt","_c1","zhixing_cnt","litigant_result_sum_money","litigant_defendant_contract_dispute_cnt","address_change_cnt","litigant_defendant_bust_cnt","judge_doc_cnt","court_notice_is_no","network_share_cancel_cnt","near_3_year_judgedoc_cnt","shixin_cnt","hy_shixin_cnt","litigant_defendant_unjust_enrich_cnt","zczjbz","near_2_year_judgedoc_cnt","litigant_defendant_infringe_cnt","court_announce_litigant_cnt","court_announce_cnt","invent_patent_cnt","invent_publish_cnt","estate_auction_cnt","real_estate_auction_cnt","network_share_shixin_cnt","court_notice_cnt","sszc_cnt","court_notice_litigant_cnt","near_3_year_shixin_cnt",]
 feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","fr_change_cnt","share_change_cnt","judgedoc_cnt","zhixing_cnt","trade_mark_cnt","address_change_cnt","network_share_zhixing_cnt","shixin_cnt","_c1","litigant_defendant_contract_dispute_cnt","court_notice_is_no","network_share_judge_doc_cnt","litigant_result_sum_money","litigant_defendant_bust_cnt","zczjbz"]
-feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","fr_change_cnt","share_change_cnt","judgedoc_cnt","zhixing_cnt","trade_mark_cnt","address_change_cnt","network_share_zhixing_cnt","shixin_cnt","_c1","litigant_defendant_contract_dispute_cnt","court_notice_is_no","network_share_judge_doc_cnt","litigant_result_sum_money","litigant_defendant_bust_cnt","zczjbz"]
+feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","fr_change_cnt","share_change_cnt","judgedoc_cnt","zhixing_cnt","trade_mark_cnt","address_change_cnt","network_share_zhixing_cnt","shixin_cnt","_c1","litigant_defendant_contract_dispute_cnt","court_notice_is_no","network_share_judge_doc_cnt"]
 # feature_name = ["regcap","established_years","industry_dx_rate","industry_all_cnt","industry_dx_cnt","net_judgedoc_defendant_cnt","fr_change_cnt","share_change_cnt","judgedoc_cnt","zhixing_cnt","regcap_change_cnt","trade_mark_cnt","network_share_zhixing_cnt","shixin_cnt","judge_doc_cnt","_c1","litigant_defendant_contract_dispute_cnt","litigant_defendant_bust_cnt"]
 
 
@@ -607,7 +607,7 @@ def write_json(path, data):
 
 def save_model(dx_tree):
     from sklearn.externals import joblib
-    joblib.dump(dx_tree, 'bankrupt_tree.model')
+    joblib.dump(dx_tree, 'bankrupt_company_predict_model.m')
 
 
 def bankrupt_train(X_train, X_test, y_train, y_test):
@@ -762,7 +762,7 @@ def bankrupt_train_lightgbm(X_train, X_test, y_train, y_test, df_vail):
             eval_set=[(X_test, y_test)])
     save_model(clf)
     feature_importance(clf, feature_name, X_test, y_test)
-    # validate_model(clf, df_vail)
+    validate_model(clf, df_vail)
     # print('###############################参数网格优选###################################')
     # model_gbr_GridSearch = lightgbm.LGBMClassifier()
     # # 设置参数池  参考 http://www.cnblogs.com/DjangoBlog/p/6201663.html
@@ -1354,7 +1354,7 @@ def get_data():
     # data = pd.DataFrame()
     feature_name01 = feature_name
     df = df[feature_name01].apply(lambda x: string_list_to_float(x))
-    df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
+    # df['zczjbz'] = df.zczjbz.apply(lambda x: is_rmb(x))
     # zczjbz = set(df['zczjbz'].tolist())
     # print("zczjbz"+str(zczjbz))
     data = df.as_matrix()
